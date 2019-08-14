@@ -1,9 +1,11 @@
-﻿using PhotoStructurer.Data;
+﻿using System;
 
-namespace PhotoStructurer.Interfaces
+namespace PhotoStructor.Interfaces
 {
     public interface IFileReader
     {
-        ImageData ReadFile(string path);
+        string Prefix { get; }
+
+        DateTime GetImageData(string path);
     }
 }

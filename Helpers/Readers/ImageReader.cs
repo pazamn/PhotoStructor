@@ -5,14 +5,16 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
-using PhotoStructurer.Data;
-using PhotoStructurer.Interfaces;
+using PhotoStructor.Interfaces;
+using PhotoStructurer.Helpers;
 
-namespace PhotoStructurer.Helpers.Readers
+namespace PhotoStructor.Helpers.Readers
 {
     public class ImageReader : IFileReader
     {
-        public ImageData ReadFile(string path)
+        public string Prefix => "IMG";
+
+        public DateTime GetImageData(string path)
         {
             try
             {
@@ -51,30 +53,22 @@ namespace PhotoStructurer.Helpers.Readers
                     var time = new TimeSpan(Convert.ToInt32(splitTime[0]), Convert.ToInt32(splitTime[1]), Convert.ToInt32(splitTime[2]));
 
                     var dateTime = new DateTime(date.Year, date.Month, date.Day, time.Hours, time.Minutes, time.Seconds);
-                    return new ImageData
-                    {
-                        OriginalFilePath = path,
-                        ModifiedFileName = $"{SupportedData.Prefix}_{dateTime:yyyyMMdd_HHmmss}_{model}"
-                    };
+                    return dateTime;
                 }
                 
                 if (Regex.IsMatch(Path.GetFileNameWithoutExtension(path) ?? string.Empty, @"\d{8}-\d{6}"))
                 {
                     var dateTimeMatch = Regex.Match(Path.GetFileNameWithoutExtension(path) ?? string.Empty, @"\d{8}-\d{6}").Value;
-
-                    return new ImageData
-                    {
-                        OriginalFilePath = path,
-                        ModifiedFileName = $"{SupportedData.Prefix}_{dateTimeMatch.Replace("-", "_")}_Unknown"
-                    };
+                    throw new NotImplementedException("Implement it here.");
+                    //return new ImageData
+                    //{
+                    //    OriginalFilePath = path,
+                    //    ModifiedFileName = $"{SupportedData.Prefix}_{dateTimeMatch.Replace("-", "_")}_Unknown"
+                    //};
                 }
 
                 var fileInfo = new FileInfo(path);
-                return new ImageData
-                {
-                    OriginalFilePath = path,
-                    ModifiedFileName = $"{SupportedData.Prefix}_{fileInfo.LastWriteTime:yyyyMMdd_HHmmss}_Unknown"
-                };
+                return fileInfo.LastWriteTime;
             }
             catch (Exception e)
             {
@@ -82,7 +76,7 @@ namespace PhotoStructurer.Helpers.Readers
                 ConsoleHelper.WriteLine($"\t{e.Message}", ConsoleColor.Red);
                 ConsoleHelper.WriteLine();
 
-                return null;
+                return default(DateTime);
             }
         }
     }

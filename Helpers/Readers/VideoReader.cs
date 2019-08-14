@@ -5,14 +5,16 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using MetadataExtractor;
 using MetadataExtractor.Formats.QuickTime;
-using PhotoStructurer.Data;
-using PhotoStructurer.Interfaces;
+using PhotoStructor.Interfaces;
+using PhotoStructurer.Helpers;
 
-namespace PhotoStructurer.Helpers.Readers
+namespace PhotoStructor.Helpers.Readers
 {
     public class VideoReader : IFileReader
     {
-        public ImageData ReadFile(string path)
+        public string Prefix => "VID";
+
+        public DateTime GetImageData(string path)
         {
             try
             {
@@ -24,23 +26,23 @@ namespace PhotoStructurer.Helpers.Readers
                 if (Regex.IsMatch(Path.GetFileNameWithoutExtension(path) ?? string.Empty, @"\d{8}-\d{6}"))
                 {
                     var dateTimeMatch = Regex.Match(Path.GetFileNameWithoutExtension(path) ?? string.Empty, @"\d{8}-\d{6}").Value;
-
-                    return new ImageData
-                    {
-                        OriginalFilePath = path,
-                        ModifiedFileName = $"{SupportedData.Prefix}_{dateTimeMatch.Replace("-", "_")}_Video"
-                    };
+                    throw new NotImplementedException("Implement it here.");
+                    //return new ImageData
+                    //{
+                    //    OriginalFilePath = path,
+                    //    ModifiedFileName = $"{SupportedData.Prefix}_{dateTimeMatch.Replace("-", "_")}_Video"
+                    //};
                 }
 
                 if (Regex.IsMatch(Path.GetFileNameWithoutExtension(path) ?? string.Empty, @"\d{8}_\d{6}"))
                 {
                     var dateTimeMatch = Regex.Match(Path.GetFileNameWithoutExtension(path) ?? string.Empty, @"\d{8}_\d{6}").Value;
-
-                    return new ImageData
-                    {
-                        OriginalFilePath = path,
-                        ModifiedFileName = $"{SupportedData.Prefix}_{dateTimeMatch}_Video"
-                    };
+                    throw new NotImplementedException("Implement it here.");
+                    //return new ImageData
+                    //{
+                    //    OriginalFilePath = path,
+                    //    ModifiedFileName = $"{SupportedData.Prefix}_{dateTimeMatch}_Video"
+                    //};
                 }
 
                 var metadata = ImageMetadataReader.ReadMetadata(path);
@@ -54,19 +56,11 @@ namespace PhotoStructurer.Helpers.Readers
                     }
 
                     var dateTime = DateTime.ParseExact(dateTimeString, "ddd MMM dd HH:mm:ss yyyy", CultureInfo.CurrentCulture);
-                    return new ImageData
-                    {
-                        OriginalFilePath = path,
-                        ModifiedFileName = $"{SupportedData.Prefix}_{dateTime:yyyyMMdd_HHmmss}_Video"
-                    };
+                    return dateTime;
                 }
                 
                 var fileInfo = new FileInfo(path);
-                return new ImageData
-                {
-                    OriginalFilePath = path,
-                    ModifiedFileName = $"{SupportedData.Prefix}_{fileInfo.LastWriteTime:yyyyMMdd_HHmmss}_Video"
-                };
+                return fileInfo.LastWriteTime;
             }
             catch (Exception e)
             {
@@ -74,7 +68,7 @@ namespace PhotoStructurer.Helpers.Readers
                 ConsoleHelper.WriteLine($"\t{e.Message}", ConsoleColor.Red);
                 ConsoleHelper.WriteLine();
 
-                return null;
+                return default(DateTime);
             }
         }
     }

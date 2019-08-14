@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics;
 using System.IO;
 
-namespace PhotoStructurer.Data
+namespace PhotoStructor.Data
 {
     [DebuggerDisplay("{OriginalFileName} -> {ModifiedFullFileName}")]
-    public class ImageData
+    public class RenamingData
     {
         public string OriginalFilePath { get; set; }
 
@@ -16,11 +16,13 @@ namespace PhotoStructurer.Data
 
         public int ModifiedFileConflictNumber { get; set; }
 
-        public string ModifiedFilePostfix => ModifiedFileConflictNumber <= -1
+        public bool DoRollback { get; set; }
+
+        public string ModifiedFilePostfix => ModifiedFileConflictNumber <= 0
                                            ? string.Empty
                                            : $"_{ModifiedFileConflictNumber}";
 
-        public string ModifiedFullFileName => $"{ModifiedFileName.Trim()}{ModifiedFilePostfix.Trim()}_{Path.GetFileNameWithoutExtension(OriginalFileName)}{Extension}";
+        public string ModifiedFullFileName => $"{ModifiedFileName.Trim()}{ModifiedFilePostfix.Trim()}{Extension}";
 
         public string ModifiedFilePath => Path.Combine(Path.GetDirectoryName(OriginalFilePath) ?? string.Empty, ModifiedFullFileName);
     }

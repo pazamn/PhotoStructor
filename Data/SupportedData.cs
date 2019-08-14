@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
-using PhotoStructurer.Helpers.Readers;
-using PhotoStructurer.Interfaces;
+using PhotoStructor.Helpers.Readers;
+using PhotoStructor.Interfaces;
 
-namespace PhotoStructurer.Data
+namespace PhotoStructor.Data
 {
     public static class SupportedData
     {
-        public static string Prefix = "LIFE";
-
         public static readonly Dictionary<string, IFileReader> ImageExtensions = new Dictionary<string, IFileReader>
         {
             { ".jpg",  new ImageReader() },

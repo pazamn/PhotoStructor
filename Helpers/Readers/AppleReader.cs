@@ -1,17 +1,16 @@
 ﻿using System;
-using System.Globalization;
 using System.IO;
-using System.Linq;
-using MetadataExtractor;
-using MetadataExtractor.Formats.QuickTime;
-using PhotoStructurer.Data;
-using PhotoStructurer.Interfaces;
+using PhotoStructor.Data;
+using PhotoStructor.Interfaces;
+using PhotoStructurer.Helpers;
 
-namespace PhotoStructurer.Helpers.Readers
+namespace PhotoStructor.Helpers.Readers
 {
     public class AppleReader : IFileReader
     {
-        public ImageData ReadFile(string path)
+        public string Prefix => "IMG";
+
+        public DateTime GetImageData(string path)
         {
             try
             {
@@ -23,11 +22,7 @@ namespace PhotoStructurer.Helpers.Readers
                 //todo-AD Get actual timestamp of .HEIC, not modification time
 
                 var fileInfo = new FileInfo(path);
-                return new ImageData
-                {
-                    OriginalFilePath = path,
-                    ModifiedFileName = $"{SupportedData.Prefix}_{fileInfo.LastWriteTime:yyyyMMdd_HHmmss}_iPhone"
-                };
+                return fileInfo.LastWriteTime;
             }
             catch (Exception e)
             {
@@ -35,7 +30,7 @@ namespace PhotoStructurer.Helpers.Readers
                 ConsoleHelper.WriteLine($"\t{e.Message}", ConsoleColor.Red);
                 ConsoleHelper.WriteLine();
 
-                return null;
+                return default(DateTime);
             }
         }
     }

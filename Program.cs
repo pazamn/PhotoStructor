@@ -2,17 +2,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using PhotoStructurer.Data;
+using System.Text.RegularExpressions;
+using PhotoStructor.Data;
+using PhotoStructor.Interfaces;
 using PhotoStructurer.Helpers;
-using PhotoStructurer.Interfaces;
 
-namespace PhotoStructurer
+namespace PhotoStructor
 {
     public class Program
     {
-        //todo-AD Upload it to github
-
-        public static void Main(string[] folders)
+        public static void Main(string[] args)
         {
             try
             {
@@ -22,19 +21,24 @@ namespace PhotoStructurer
                 ConsoleHelper.WriteLine("Press any key to continue...", ConsoleColor.Gray);
                 Console.ReadKey();
 
-                if (!folders.Any())
+                var folders = from arg in args
+                              where arg.ToLowerInvariant() != "/rollback"
+                              select arg;
+
+                var foldersList = folders.ToList();
+                if (!foldersList.Any())
                 {
                     throw new Exception("There are no parameterized folders via command line arguments.");
                 }
 
                 ConsoleHelper.WriteLine("Folders:", ConsoleColor.Green);
-                foreach (var folder in folders)
+                foreach (var folder in foldersList)
                 {
                     ConsoleHelper.WriteLine($"\t{folder}", ConsoleColor.Gray);
                 }
 
                 ConsoleHelper.WriteLine();
-                foreach (var folder in folders)
+                foreach (var folder in foldersList)
                 {
                     ConvertFolder(folder);
                 }
@@ -65,8 +69,7 @@ namespace PhotoStructurer
             foreach (var extension in SupportedData.ImageExtensions)
             {
                 var currentDirPhotos = Directory.GetFiles(folderPath, $"*{extension.Key}", SearchOption.TopDirectoryOnly);
-                var photosToMove = currentDirPhotos.Where(x => !(Path.GetFileNameWithoutExtension(x) ?? string.Empty).StartsWith($"{SupportedData.Prefix}_"));
-                foreach (var item in photosToMove)
+                foreach (var item in currentDirPhotos)
                 {
                     photos.Add(item, extension.Value);
                 }
@@ -75,41 +78,61 @@ namespace PhotoStructurer
             ConsoleHelper.WriteLine($"Found {photos.Count} photos.", ConsoleColor.Green);
             ConsoleHelper.WriteLine();
 
-            var modifications = new List<ImageData>();
+            var modifications = new List<RenamingData>();
             foreach (var photo in photos)
             {
-                var imageData = photo.Value.ReadFile(photo.Key);
-                if (imageData == null)
+                var photoNameRegexPattern = $@"^{photo.Value.Prefix}_\d{{4}}\d{{2}}\d{{2}}_\d{{2}}\d{{2}}\d{{2}}";
+
+                var photoName = Path.GetFileNameWithoutExtension(photo.Key) ?? string.Empty;
+                if (Regex.IsMatch(photoName, photoNameRegexPattern))
                 {
-                    ConsoleHelper.WriteLine($"\tSkipped: {photo}", ConsoleColor.Yellow);
+                    ConsoleHelper.WriteLine($"\tSkipped: {photo.Key}", ConsoleColor.DarkGray);
                     continue;
                 }
 
-                var conflictingFiles = modifications.Where(x => x.ModifiedFileName == imageData.ModifiedFileName).ToList();
+                var creationTime = photo.Value.GetImageData(photo.Key);
+                if (creationTime == default(DateTime))
+                {
+                    throw new Exception($"Creation value of file {photo.Key} is {DateTime.MinValue:yyyyMMdd_HHmmss}.");
+                }
+
+                var renamingData = new RenamingData
+                {
+                    OriginalFilePath = photo.Key,
+                    ModifiedFileName = $"{photo.Value.Prefix}_{creationTime:yyyyMMdd_HHmmss}"
+                };
+
+                var conflictingFiles = modifications.Where(x => x.ModifiedFileName == renamingData.ModifiedFileName).ToList();
                 if (conflictingFiles.Any())
                 {
                     var maxConflictedNumber = conflictingFiles.Select(x => x.ModifiedFileConflictNumber).Max();
-                    imageData.ModifiedFileConflictNumber = maxConflictedNumber + 1;
+                    renamingData.ModifiedFileConflictNumber = maxConflictedNumber + 1;
                 }
 
-                modifications.Add(imageData);
-                ConsoleHelper.WriteLine($"\tAdded: {photo}", ConsoleColor.Gray);
+                modifications.Add(renamingData);
+                ConsoleHelper.WriteLine($"\tAdded: {photo.Key}", ConsoleColor.Cyan);
             }
 
             ConsoleHelper.WriteLine();
-            ConsoleHelper.WriteLine($"Calculated names for {photos.Count} modifications.", ConsoleColor.Green);
+            ConsoleHelper.WriteLine($"Calculated names for {modifications.Count} modifications.", ConsoleColor.Green);
             ConsoleHelper.WriteLine();
 
-            foreach (var modification in modifications)
+            if (modifications.Any())
             {
-                if (File.Exists(modification.ModifiedFilePath))
-                {
-                    ConsoleHelper.WriteLine($"\tNot moved: {modification.ModifiedFullFileName}", ConsoleColor.Red);
-                    continue;
-                }
+                ConsoleHelper.WriteLine("Press any key to continue with the folder...", ConsoleColor.Gray);
+                Console.ReadKey();
 
-                File.Move(modification.OriginalFilePath, modification.ModifiedFilePath);
-                ConsoleHelper.WriteLine($"\tMoved: {modification.OriginalFileName} -> {modification.ModifiedFullFileName}", ConsoleColor.Gray);
+                foreach (var modification in modifications)
+                {
+                    if (File.Exists(modification.ModifiedFilePath))
+                    {
+                        ConsoleHelper.WriteLine($"\tNot moved: {modification.ModifiedFullFileName}", ConsoleColor.Red);
+                        continue;
+                    }
+
+                    File.Move(modification.OriginalFilePath, modification.ModifiedFilePath);
+                    ConsoleHelper.WriteLine($"\tMoved: {modification.OriginalFileName} -> {modification.ModifiedFullFileName}", ConsoleColor.Gray);
+                }
             }
 
             ConsoleHelper.WriteLine();
