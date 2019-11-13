@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using MetadataExtractor;
+using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.QuickTime;
 using PhotoStructor.Interfaces;
-using PhotoStructurer.Helpers;
 
 namespace PhotoStructor.Helpers.Readers
 {
@@ -14,10 +14,11 @@ namespace PhotoStructor.Helpers.Readers
     {
         public string Prefix => "VID";
 
-        public DateTime GetImageData(string path)
+        public DateTime GetImageData(string path, out string postfix)
         {
             try
             {
+                postfix = string.Empty;
                 if (!File.Exists(path))
                 {
                     throw new FileNotFoundException($"File cannot be found by path: {path}");
@@ -68,7 +69,36 @@ namespace PhotoStructor.Helpers.Readers
                 ConsoleHelper.WriteLine($"\t{e.Message}", ConsoleColor.Red);
                 ConsoleHelper.WriteLine();
 
+                postfix = string.Empty;
                 return default(DateTime);
+            }
+        }
+
+        public string GetImageDevice(string path)
+        {
+            try
+            {
+                if (!File.Exists(path))
+                {
+                    throw new FileNotFoundException($"File cannot be found by path: {path}");
+                }
+
+                var ifd0Directory = ImageMetadataReader.ReadMetadata(path).OfType<ExifIfd0Directory>().FirstOrDefault();
+                if (ifd0Directory == null)
+                {
+                    return "unknown";
+                }
+
+                var cameraModel = ifd0Directory.GetDescription(ExifDirectoryBase.TagModel);
+                return cameraModel ?? "unknown";
+            }
+            catch (Exception e)
+            {
+                ConsoleHelper.WriteLine($"\tException occured for file:\r\n\t{path}", ConsoleColor.Red);
+                ConsoleHelper.WriteLine($"\t{e.Message}", ConsoleColor.Red);
+                ConsoleHelper.WriteLine();
+
+                return string.Empty;
             }
         }
     }

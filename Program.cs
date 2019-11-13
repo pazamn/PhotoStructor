@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using PhotoStructor.Data;
+using PhotoStructor.Helpers;
 using PhotoStructor.Interfaces;
-using PhotoStructurer.Helpers;
 
 namespace PhotoStructor
 {
@@ -15,7 +15,7 @@ namespace PhotoStructor
         {
             try
             {
-                ConsoleHelper.WriteLine($"Start {nameof(PhotoStructurer)}", ConsoleColor.Cyan);
+                ConsoleHelper.WriteLine($"Start {nameof(PhotoStructor)}", ConsoleColor.Cyan);
                 Console.WriteLine();
 
                 ConsoleHelper.WriteLine("Press any key to continue...", ConsoleColor.Gray);
@@ -76,30 +76,63 @@ namespace PhotoStructor
             }
 
             ConsoleHelper.WriteLine($"Found {photos.Count} photos.", ConsoleColor.Green);
+            var cameras = photos.Select(x => x.Value.GetImageDevice(x.Key)).Distinct().ToList();
+
+            ConsoleHelper.WriteLine($"Found {cameras.Count} devices.", ConsoleColor.Green);
             ConsoleHelper.WriteLine();
+
+            var offsets = new Dictionary<string, int>();
+            foreach (var camera in cameras)
+            {
+                ConsoleHelper.Write("Set time offset for ", ConsoleColor.Gray);
+                ConsoleHelper.Write(camera, ConsoleColor.Cyan);
+                ConsoleHelper.Write(": ", ConsoleColor.Gray);
+
+                var offsetKey = Console.ReadKey().KeyChar.ToString();
+                ConsoleHelper.WriteLine();
+
+                if (string.IsNullOrEmpty(offsetKey))
+                {
+                    offsets.Add(camera, 0);
+                    continue;
+                }
+
+                var parsed = int.TryParse(offsetKey, out var offset);
+                if (!parsed)
+                {
+                    throw new Exception($"Unexpected offset: '{offsetKey}'.");
+                }
+
+                offsets.Add(camera, offset);
+            }
 
             var modifications = new List<RenamingData>();
             foreach (var photo in photos)
             {
                 var photoNameRegexPattern = $@"^{photo.Value.Prefix}_\d{{4}}\d{{2}}\d{{2}}_\d{{2}}\d{{2}}\d{{2}}";
 
-                var photoName = Path.GetFileNameWithoutExtension(photo.Key) ?? string.Empty;
-                if (Regex.IsMatch(photoName, photoNameRegexPattern))
+                var photoCameraModel = photo.Value.GetImageDevice(photo.Key);
+                var offset = offsets[photoCameraModel];
+
+                var photoName = Path.GetFileNameWithoutExtension(photo.Key);
+                if (Regex.IsMatch(photoName, photoNameRegexPattern) && offset == 0)
                 {
                     ConsoleHelper.WriteLine($"\tSkipped: {photo.Key}", ConsoleColor.DarkGray);
                     continue;
                 }
 
-                var creationTime = photo.Value.GetImageData(photo.Key);
+                var creationTime = photo.Value.GetImageData(photo.Key, out var postfix);
                 if (creationTime == default(DateTime))
                 {
                     throw new Exception($"Creation value of file {photo.Key} is {DateTime.MinValue:yyyyMMdd_HHmmss}.");
                 }
 
+                var offsetTime = creationTime + TimeSpan.FromHours(offset);
                 var renamingData = new RenamingData
                 {
                     OriginalFilePath = photo.Key,
-                    ModifiedFileName = $"{photo.Value.Prefix}_{creationTime:yyyyMMdd_HHmmss}"
+                    CameraModelPostfix = postfix,
+                    ModifiedFileName = $"{photo.Value.Prefix}_{offsetTime:yyyyMMdd_HHmmss}",
                 };
 
                 var conflictingFiles = modifications.Where(x => x.ModifiedFileName == renamingData.ModifiedFileName).ToList();

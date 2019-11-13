@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PhotoStructurer.Helpers
+namespace PhotoStructor.Helpers
 {
     public static class ConsoleHelper
     {
@@ -15,6 +15,16 @@ namespace PhotoStructurer.Helpers
             Console.ForegroundColor = color;
 
             Console.WriteLine(message);
+
+            Console.ForegroundColor = consoleColor;
+        }
+
+        public static void Write(string message, ConsoleColor color)
+        {
+            var consoleColor = Console.ForegroundColor;
+            Console.ForegroundColor = color;
+
+            Console.Write(message);
 
             Console.ForegroundColor = consoleColor;
         }

@@ -18,9 +18,11 @@ namespace PhotoStructor.Data
 
         public bool DoRollback { get; set; }
 
+        public string CameraModelPostfix { get; set; }
+
         public string ModifiedFilePostfix => ModifiedFileConflictNumber <= 0
-                                           ? string.Empty
-                                           : $"_{ModifiedFileConflictNumber}";
+                                           ? $"_{CameraModelPostfix}"
+                                           : $"_{CameraModelPostfix}{ModifiedFileConflictNumber}";
 
         public string ModifiedFullFileName => $"{ModifiedFileName.Trim()}{ModifiedFilePostfix.Trim()}{Extension}";
 
