@@ -12,6 +12,7 @@ namespace PhotoStructor.Data
             { ".png",  new ImageReader() },
             { ".heic", new AppleReader() },
             { ".mp4",  new VideoReader() },
+            { ".mov",  new VideoReader() },
         };
     }
 }

@@ -81,6 +81,20 @@ namespace PhotoStructor
             ConsoleHelper.WriteLine($"Found {cameras.Count} devices.", ConsoleColor.Green);
             ConsoleHelper.WriteLine();
 
+            var totalFiles = Directory.GetFiles(folderPath, "*.*", SearchOption.TopDirectoryOnly).ToList();
+            if (totalFiles.Count > photos.Count)
+            {
+                var extraFiles = totalFiles.Except(photos.Keys).ToList();
+
+                ConsoleHelper.WriteLine($"Found {(extraFiles.Count)} extra files in the directory.", ConsoleColor.Yellow);
+                foreach (var extraFile in extraFiles)
+                {
+                    ConsoleHelper.WriteLine($"\t{extraFile}", ConsoleColor.Yellow);
+                }
+
+                ConsoleHelper.WriteLine();
+            }
+
             var offsets = new Dictionary<string, int>();
             foreach (var camera in cameras)
             {
