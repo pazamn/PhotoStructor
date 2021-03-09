@@ -20,9 +20,11 @@ namespace PhotoStructor.Data
 
         public string CameraModelPostfix { get; set; }
 
-        public string ModifiedFilePostfix => ModifiedFileConflictNumber <= 0
-                                           ? $"_{CameraModelPostfix}"
-                                           : $"_{CameraModelPostfix}{ModifiedFileConflictNumber}";
+        public string ModifiedFilePostfix => ModifiedFileConflictNumber > 0  && !string.IsNullOrEmpty(CameraModelPostfix) ? $"_{CameraModelPostfix}{ModifiedFileConflictNumber}"
+                                           : ModifiedFileConflictNumber <= 0 && !string.IsNullOrEmpty(CameraModelPostfix) ? $"_{CameraModelPostfix}"  
+                                           : ModifiedFileConflictNumber > 0  && string.IsNullOrEmpty(CameraModelPostfix)  ? $"{ModifiedFileConflictNumber}"
+                                           : ModifiedFileConflictNumber <= 0 && string.IsNullOrEmpty(CameraModelPostfix)  ? $""
+                                           : $"___";
 
         public string ModifiedFullFileName => $"{ModifiedFileName.Trim()}{ModifiedFilePostfix.Trim()}{Extension}";
 

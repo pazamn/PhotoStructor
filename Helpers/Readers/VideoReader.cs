@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
@@ -47,6 +49,29 @@ namespace PhotoStructor.Helpers.Readers
                 }
 
                 var metadata = ImageMetadataReader.ReadMetadata(path);
+
+                var metadataDirectory = metadata.OfType<QuickTimeMetadataHeaderDirectory>().FirstOrDefault();
+                if (metadataDirectory != null && !string.IsNullOrEmpty(metadataDirectory.GetDescription(7)))
+                {
+                    var dateTimeString = metadataDirectory.GetDescription(7);
+                    var model = metadataDirectory.GetDescription(22);
+
+                    if (string.IsNullOrEmpty(dateTimeString))
+                    {
+                        throw new FileLoadException("Date taken value is not defined in EXIF IFD0 of the file");
+                    }
+
+                    if (string.IsNullOrEmpty(model))
+                    {
+                        throw new FileLoadException("Camera model value is not defined in EXIF IFD0 of the file");
+                    }
+                    
+                    var dateTime = DateTime.Parse(dateTimeString);
+
+                    postfix = model.StartsWith("iPhone") || model.StartsWith("iPad") ? "i" : string.Empty;
+                    return dateTime;
+                }
+
                 var quickTimeDirectory = metadata.OfType<QuickTimeMovieHeaderDirectory>().FirstOrDefault();
                 if (quickTimeDirectory != null)
                 {
@@ -56,7 +81,9 @@ namespace PhotoStructor.Helpers.Readers
                         throw new FileLoadException("Date taken value is not defined in EXIF IFD0 of the file");
                     }
 
-                    var dateTime = DateTime.ParseExact(dateTimeString, "ddd MMM dd HH:mm:ss yyyy", CultureInfo.CurrentCulture);
+                    var originalDateTime = DateTime.ParseExact(dateTimeString, "ddd MMM dd HH:mm:ss yyyy", CultureInfo.CurrentCulture);
+                    var dateTime = TimeZone.CurrentTimeZone.ToLocalTime(originalDateTime);
+
                     return dateTime;
                 }
                 
@@ -83,13 +110,13 @@ namespace PhotoStructor.Helpers.Readers
                     throw new FileNotFoundException($"File cannot be found by path: {path}");
                 }
 
-                var ifd0Directory = ImageMetadataReader.ReadMetadata(path).OfType<ExifIfd0Directory>().FirstOrDefault();
-                if (ifd0Directory == null)
+                var metadataDirectory = ImageMetadataReader.ReadMetadata(path).OfType<QuickTimeMetadataHeaderDirectory>().FirstOrDefault();
+                if (metadataDirectory == null)
                 {
                     return "unknown";
                 }
 
-                var cameraModel = ifd0Directory.GetDescription(ExifDirectoryBase.TagModel);
+                var cameraModel = metadataDirectory.GetDescription(22);
                 return cameraModel ?? "unknown";
             }
             catch (Exception e)
