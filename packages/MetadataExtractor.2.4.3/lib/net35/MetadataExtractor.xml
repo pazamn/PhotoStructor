@@ -219,7 +219,15 @@
         </member>
         <member name="M:MetadataExtractor.DirectoryExtensions.TryGetDateTime(MetadataExtractor.Directory,System.Int32,System.DateTime@)">
             <summary>Attempts to return the specified tag's value as a DateTime.</summary>
-            <remarks>If the underlying value is a <see cref="T:System.String"/>, then attempts will be made to parse it.</remarks>
+            <remarks>
+            <para>
+            If the underlying value is a <see cref="T:System.String"/>, then attempts will be made to parse it.
+            </para>
+            <para>
+            If that string contains a time-zone offset, the returned <see cref="T:System.DateTime"/> will have kind <see cref="F:System.DateTimeKind.Utc"/>,
+            otherwise it will be <see cref="F:System.DateTimeKind.Unspecified"/>.
+            </para>
+            </remarks>
             <returns><c>true</c> if a DateTime was returned, otherwise <c>false</c>.</returns>
         </member>
         <member name="M:MetadataExtractor.DirectoryExtensions.TryGetRational(MetadataExtractor.Directory,System.Int32,MetadataExtractor.Rational@)">
@@ -259,7 +267,6 @@
             <summary>Contains image encoding information for DCT filters, as stored by Adobe.</summary>
         </member>
         <member name="F:MetadataExtractor.Formats.Adobe.AdobeJpegDirectory.TagApp14Flags0">
-            <summary>The convention for TAG_APP14_FLAGS0 and TAG_APP14_FLAGS1 is that 0 bits are benign.</summary>
             <remarks>
             The convention for TAG_APP14_FLAGS0 and TAG_APP14_FLAGS1 is that 0 bits are benign.
             1 bits in TAG_APP14_FLAGS0 pass information that is possibly useful but not essential for decoding.
@@ -268,7 +275,6 @@
             </remarks>
         </member>
         <member name="F:MetadataExtractor.Formats.Adobe.AdobeJpegDirectory.TagApp14Flags1">
-            <summary>The convention for TAG_APP14_FLAGS0 and TAG_APP14_FLAGS1 is that 0 bits are benign.</summary>
             <remarks>
             The convention for TAG_APP14_FLAGS0 and TAG_APP14_FLAGS1 is that 0 bits are benign.
             1 bits in TAG_APP14_FLAGS1 pass information essential for decoding. DCTDecode could reject a compressed
@@ -280,21 +286,286 @@
             <author>Philip</author>
             <author>Drew Noakes https://drewnoakes.com</author>
         </member>
+        <member name="T:MetadataExtractor.Formats.Avi.AviDescriptor">
+            <author>Payton Garland</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Avi.AviDirectory">
+            <author>Payton Garland</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Avi.AviMetadataReader">
+            <summary>Obtains metadata from Avi files.</summary>
+            <author>Drew Noakes https://drewnoakes.com</author>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Avi.AviMetadataReader.ReadMetadata(System.String)">
+            <exception cref="T:System.IO.IOException"/>
+            <exception cref="T:MetadataExtractor.Formats.Riff.RiffProcessingException"/>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Avi.AviMetadataReader.ReadMetadata(System.IO.Stream)">
+            <exception cref="T:System.IO.IOException"/>
+            <exception cref="T:MetadataExtractor.Formats.Riff.RiffProcessingException"/>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Avi.AviRiffHandler">
+            <summary>
+            Implementation of <see cref="T:MetadataExtractor.Formats.Riff.IRiffHandler"/> specialising in AVI support.
+            </summary>
+            <remarks>
+            Extracts data from chunk/list types:
+            <list type="bullet">
+              <item><c>"avih"</c>: width, height, streams</item>
+              <item><c>"strh"</c>: frames/second, samples/second, duration, video codec</item>
+            </list>
+            Sources:
+            http://www.alexander-noe.com/video/documentation/avi.pdf
+            https://msdn.microsoft.com/en-us/library/ms899422.aspx
+            https://www.loc.gov/preservation/digital/formats/fdd/fdd000025.shtml
+            </remarks>
+            <author>Payton Garland</author>
+        </member>
         <member name="T:MetadataExtractor.Formats.Bmp.BmpHeaderDescriptor">
             <author>Drew Noakes https://drewnoakes.com</author>
+            <author>Kevin Mott https://github.com/kwhopper</author>
         </member>
         <member name="T:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory">
             <author>Drew Noakes https://drewnoakes.com</author>
+            <author>Kevin Mott https://github.com/kwhopper</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.BitmapType">
+            <summary>
+            Possible "magic bytes" indicating bitmap type
+            </summary>
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.BitmapType.Bitmap">
+            "BM" - Windows or OS/2 bitmap 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.BitmapType.OS2BitmapArray">
+            "BA" - OS/2 Bitmap array (multiple bitmaps) 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.BitmapType.OS2Icon">
+            "IC" - OS/2 Icon 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.BitmapType.OS2ColorIcon">
+            "CI" - OS/2 Color icon 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.BitmapType.OS2ColorPointer">
+            "CP" - OS/2 Color pointer 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.BitmapType.OS2Pointer">
+            "PT" - OS/2 Pointer 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.Compression.Rgb">
+            0 = None 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.Compression.Rle8">
+            1 = RLE 8-bit/pixel 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.Compression.Rle4">
+            2 = RLE 4-bit/pixel 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.Compression.BitFields">
+            3 = Bit fields (not OS22XBITMAPHEADER (size 64)) 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.Compression.Huffman1D">
+            3 = Huffman 1D (if OS22XBITMAPHEADER (size 64)) 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.Compression.Jpeg">
+            4 = JPEG (not OS22XBITMAPHEADER (size 64)) 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.Compression.Rle24">
+            4 = RLE 24-bit/pixel (if OS22XBITMAPHEADER (size 64)) 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.Compression.Png">
+            5 = PNG 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.Compression.AlphaBitFields">
+            6 = RGBA bit fields 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.Compression.Cmyk">
+            11 = CMYK 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.Compression.CmykRle8">
+            12 = CMYK RLE-8 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.Compression.CmykRle4">
+            13 = CMYK RLE-4 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.RenderingHalftoningAlgorithm.None">
+            No halftoning algorithm 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.RenderingHalftoningAlgorithm.ErrorDiffusion">
+            Error Diffusion Halftoning 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.RenderingHalftoningAlgorithm.Panda">
+            Processing Algorithm for Noncoded Document Acquisition 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.RenderingHalftoningAlgorithm.SuperCircle">
+            Super-circle Halftoning 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.ColorSpaceType.LcsCalibratedRgb">
+            0 = Calibrated RGB 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.ColorSpaceType.LcsSRgb">
+            "sRGB" = sRGB Color Space 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.ColorSpaceType.LcsWindowsColorSpace">
+            "Win " = System Default Color Space, sRGB 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.ColorSpaceType.ProfileLinked">
+            "LINK" = Linked Profile 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.ColorSpaceType.ProfileEmbedded">
+            "MBED" = Embedded Profile 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.RenderingIntent.LcsGmBusiness">
+            Graphic, Saturation 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.RenderingIntent.LcsGmGraphics">
+            Proof, Relative Colorimetric 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.RenderingIntent.LcsGmImages">
+            Picture, Perceptual 
+        </member>
+        <member name="F:MetadataExtractor.Formats.Bmp.BmpHeaderDirectory.RenderingIntent.LcsGmAbsColorimetric">
+            Match, Absolute Colorimetric 
         </member>
         <member name="T:MetadataExtractor.Formats.Bmp.BmpMetadataReader">
             <summary>Obtains metadata from BMP files.</summary>
             <author>Drew Noakes https://drewnoakes.com</author>
+            <author>Kevin Mott https://github.com/kwhopper</author>
         </member>
         <member name="M:MetadataExtractor.Formats.Bmp.BmpMetadataReader.ReadMetadata(System.String)">
             <exception cref="T:System.IO.IOException"/>
         </member>
         <member name="T:MetadataExtractor.Formats.Bmp.BmpReader">
             <author>Drew Noakes https://drewnoakes.com</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Eps.EpsDescriptor">
+            <summary>Provides human-readable string versions of the tags stored in a <see cref="T:MetadataExtractor.Formats.Eps.EpsDirectory"/>.</summary>
+            <author>Payton Garland</author>
+            <author>Kevin Mott https://github.com/kwhopper</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Eps.EpsDirectory">
+            <author>Payton Garland</author>
+            <author>Kevin Mott https://github.com/kwhopper</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Eps.EpsMetadataReader">
+            <summary>Obtains metadata from EPS files.</summary>
+            <author>Payton Garland</author>
+            <author>Kevin Mott https://github.com/kwhopper</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Eps.EpsReader">
+            <summary>Reads file passed in through SequentialReader and parses encountered data:</summary>
+            <remarks>
+            <list type="bullet">
+              <item>Basic EPS Comments</item>
+              <item>EXIF</item>
+              <item>Photoshop</item>
+              <item>IPTC</item>
+              <item>ICC Profile</item>
+              <item>XMP</item>
+            </list>
+            EPS comments are retrieved from EPS directory.  Photoshop, ICC Profile, and XMP processing
+            is passed to their respective reader.
+            <para />
+            EPS Constraints (Source: https://www-cdf.fnal.gov/offline/PostScript/5001.PDF pg.18):
+            <list type = "bullet" >
+              <item>Max line length is 255 characters</item>
+              <item>Lines end with a CR(0xD) or LF(0xA) character (or both, in practice)</item>
+              <item>':' separates keywords (considered part of the keyword)</item>
+              <item>Whitespace is either a space(0x20) or tab(0x9)</item>
+              <item>If there is more than one header, the 1st is truth</item>
+            </list>
+            </remarks>
+            <author>Payton Garland</author>
+            <author>Kevin Mott https://github.com/kwhopper</author>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Eps.EpsReader.Extract(MetadataExtractor.Formats.Eps.EpsDirectory,System.Collections.Generic.List{MetadataExtractor.Directory},MetadataExtractor.IO.SequentialReader)">
+            <summary>
+            Main method that parses all comments and then distributes data extraction among other methods that parse the
+            rest of file and store encountered data in metadata(if there exists an entry in EpsDirectory
+            for the found data).  Reads until a begin data/binary comment is found or reader's estimated
+            available data has run out (or AI09 End Private Data).  Will extract data from normal EPS comments, Photoshop, ICC, and XMP.
+            </summary>
+            <param name="directory"></param>
+            <param name="directories">list to add directory to and extracted data</param>
+            <param name="reader"></param>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Eps.EpsReader.AddToDirectory(MetadataExtractor.Formats.Eps.EpsDirectory,System.String,System.String)">
+            <summary>
+            Default case that adds comment with keyword to directory
+            </summary>
+            <param name="directory">EpsDirectory to add extracted data to</param>
+            <param name="name">String that holds name of current comment</param>
+            <param name="value">String that holds value of current comment</param>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Eps.EpsReader.ExtractImageData(MetadataExtractor.Formats.Eps.EpsDirectory,System.String)">
+            <summary>
+            Parses '%ImageData' comment which holds several values including width in px,
+            height in px and color type.
+            </summary>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Eps.EpsReader.ExtractPhotoshopData(System.Collections.Generic.List{MetadataExtractor.Directory},MetadataExtractor.IO.SequentialReader)">
+            <summary>
+            Decodes a commented hex section, and uses <see cref="T:MetadataExtractor.Formats.Photoshop.PhotoshopReader"/> to decode the resulting data.
+            </summary>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Eps.EpsReader.ExtractIccData(System.Collections.Generic.List{MetadataExtractor.Directory},MetadataExtractor.IO.SequentialReader)">
+            <summary>
+            Decodes a commented hex section, and uses <see cref="T:MetadataExtractor.Formats.Icc.IccReader"/> to decode the resulting data.
+            </summary>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Eps.EpsReader.ExtractXmpData(System.Collections.Generic.List{MetadataExtractor.Directory},MetadataExtractor.IO.SequentialReader)">
+            <summary>
+            Extracts an XMP xpacket, and uses <see cref="T:MetadataExtractor.Formats.Xmp.XmpReader"/> to decode the resulting data.
+            </summary>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Eps.EpsReader.ReadUntil(MetadataExtractor.IO.SequentialReader,System.Byte[])">
+            <summary>
+            Reads all bytes until the given sentinel is observed.
+            The sentinel will be included in the returned bytes.
+            </summary>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Eps.EpsReader.DecodeHexCommentBlock(MetadataExtractor.IO.SequentialReader)">
+             EPS files can contain hexadecimal-encoded ASCII blocks, each prefixed with <c>"% "</c>.
+             This method reads such a block and returns a byte[] of the decoded contents.
+             Reading stops at the first invalid line, which is discarded (it's a terminator anyway).
+             <p/>
+             For example:
+             <pre><code>
+             %BeginPhotoshop: 9564
+             % 3842494D040400000000005D1C015A00031B25471C0200000200041C02780004
+             % 6E756C6C1C027A00046E756C6C1C025000046E756C6C1C023700083230313630
+             % 3331311C023C000B3131343335362B303030301C023E00083230313630333131
+             % 48000000010000003842494D03FD0000000000080101000000000000
+             %EndPhotoshop
+             </code></pre>
+             When calling this method, the reader must be positioned at the start of the first line containing
+             hex data, not at the introductory line.
+            
+             @return The decoded bytes, or <code>null</code> if decoding failed.
+            <remarks>
+            EPS files can contain hexadecimal-encoded ASCII blocks, each prefixed with "% ".
+            This method reads such a block and returns a byte[] of the decoded contents.
+            Reading stops at the first invalid line, which is discarded(it's a terminator anyway).
+            <para />
+            For example:
+            <para />
+            %BeginPhotoshop: 9564
+            % 3842494D040400000000005D1C015A00031B25471C0200000200041C02780004
+            % 6E756C6C1C027A00046E756C6C1C025000046E756C6C1C023700083230313630
+            % 3331311C023C000B3131343335362B303030301C023E00083230313630333131
+            % 48000000010000003842494D03FD0000000000080101000000000000
+            %EndPhotoshop
+            <para />
+            When calling this method, the reader must be positioned at the start of the first line containing
+            hex data, not at the introductory line.
+            </remarks>
+            <returns>The decoded bytes, or null if decoding failed.</returns>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Eps.EpsReader.TryHexToInt(System.Byte)">
+            <summary>
+            Treats a byte as an ASCII character, and returns its numerical value in hexadecimal.
+            If conversion is not possible, returns -1.
+            </summary>
         </member>
         <member name="T:MetadataExtractor.Formats.Exif.ExifDescriptorBase`1">
             <summary>Base class for several Exif format descriptor classes.</summary>
@@ -328,7 +599,7 @@
              some conditional tests.
              </remarks>
         </member>
-        <member name="M:MetadataExtractor.Formats.Exif.ExifDescriptorBase`1.DecodeCFAPattern(System.Int32)">
+        <member name="M:MetadataExtractor.Formats.Exif.ExifDescriptorBase`1.DecodeCfaPattern(System.Int32)">
              <summary>
              Decode raw CFAPattern value
              </summary>
@@ -532,6 +803,7 @@
             '18' standard light B, '19' standard light C, '20' D55, '21' D65,
             '22' D75, '255' other.
             </remarks>
+            <seealso cref="F:MetadataExtractor.Formats.Exif.ExifDirectoryBase.TagWhiteBalanceMode" />
         </member>
         <member name="F:MetadataExtractor.Formats.Exif.ExifDirectoryBase.TagFlash">
             <summary>
@@ -661,6 +933,7 @@
             1 = Manual white balance
             Other = reserved
             </remarks>
+            <seealso cref="F:MetadataExtractor.Formats.Exif.ExifDirectoryBase.TagWhiteBalance" />
         </member>
         <member name="F:MetadataExtractor.Formats.Exif.ExifDirectoryBase.TagDigitalZoomRatio">
             <summary>This tag indicates the digital zoom ratio when the image was shot.</summary>
@@ -885,7 +1158,12 @@
             <author>Drew Noakes https://drewnoakes.com</author>
         </member>
         <member name="F:MetadataExtractor.Formats.Exif.ExifReader.JpegSegmentPreamble">
-            <summary>Exif data stored in JPEG files' APP1 segment are preceded by this six character preamble.</summary>
+            <summary>Exif data stored in JPEG files' APP1 segment are preceded by this six character preamble "Exif\0\0".</summary>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Exif.ExifReader.StartsWithJpegExifPreamble(System.Byte[])">
+            <summary>
+            Indicates whether <paramref name="bytes"/> starts with <see cref="F:MetadataExtractor.Formats.Exif.ExifReader.JpegSegmentPreamble"/>.
+            </summary>
         </member>
         <member name="M:MetadataExtractor.Formats.Exif.ExifReader.Extract(MetadataExtractor.IO.IndexedReader)">
             <summary>
@@ -1040,6 +1318,9 @@
         <member name="F:MetadataExtractor.Formats.Exif.GpsDirectory.TagProcessingMethod">
             <summary>Values of "GPS", "CELLID", "WLAN" or "MANUAL" by the EXIF spec.</summary>
         </member>
+        <member name="F:MetadataExtractor.Formats.Exif.GpsDirectory.TagHPositioningError">
+            <summary>GPSHPositioningError	Horizontal positioning error RATIONAL 1</summary>
+        </member>
         <member name="M:MetadataExtractor.Formats.Exif.GpsDirectory.GetGeoLocation">
             <summary>
             Parses various tags in an attempt to obtain a single object representing the latitude and longitude
@@ -1064,6 +1345,20 @@
             <summary>Describes tags specific to Apple cameras.</summary>
             <remarks>Using information from http://owl.phy.queensu.ca/~phil/exiftool/TagNames/Apple.html</remarks>
             <author>Drew Noakes https://drewnoakes.com</author>
+        </member>
+        <member name="F:MetadataExtractor.Formats.Exif.Makernotes.AppleMakernoteDirectory.TagAccelerationVector">
+            <summary>
+            XYZ coordinates of the acceleration vector in units of g.
+            As viewed from the front of the phone,
+            positive X is toward the left side,
+            positive Y is toward the bottom,
+            positive Z points into the face of the phone
+            </summary>
+        </member>
+        <member name="F:MetadataExtractor.Formats.Exif.Makernotes.AppleMakernoteDirectory.TagBurstUuid">
+            <summary>
+            Unique ID for all images in a burst.
+            </summary>
         </member>
         <member name="T:MetadataExtractor.Formats.Exif.Makernotes.CanonMakernoteDescriptor">
             <summary>
@@ -1448,6 +1743,81 @@
         </member>
         <member name="F:MetadataExtractor.Formats.Exif.Makernotes.CasioType2MakernoteDirectory.TagFilter">
             <summary>0 = Off</summary>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Exif.Makernotes.DjiMakernoteDescriptor">
+            <summary>
+            Provides human-readable string representations of tag values stored in a <see cref="T:MetadataExtractor.Formats.Exif.Makernotes.DjiMakernoteDirectory"/>.
+            </summary>
+            <remarks>Using information from https://metacpan.org/pod/distribution/Image-ExifTool/lib/Image/ExifTool/TagNames.pod#DJI-Tags</remarks>
+            <author>Charlie Matherne, adapted from Drew Noakes https://drewnoakes.com</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Exif.Makernotes.DjiMakernoteDirectory">
+            <summary>Describes tags specific to DJI aircraft cameras.</summary>
+            <remarks>Using information from https://metacpan.org/pod/distribution/Image-ExifTool/lib/Image/ExifTool/TagNames.pod#DJI-Tags</remarks>
+            <author>Charlie Matherne, adapted from Drew Noakes https://drewnoakes.com</author>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Exif.Makernotes.DjiMakernoteDirectory.GetAircraftSpeedX">
+            <summary>
+            Parses various tags in an attempt to obtain a single object representing the x speed,
+            of the aircraft, at which this image was captured.
+            </summary>
+            <returns>The x speed of the aircraft for this image, if possible, otherwise <c>null</c>.</returns>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Exif.Makernotes.DjiMakernoteDirectory.GetAircraftSpeedY">
+            <summary>
+            Parses various tags in an attempt to obtain a single object representing the y speed,
+            of the aircraft, at which this image was captured.
+            </summary>
+            <returns>The y speed of the aircraft for this image, if possible, otherwise <c>null</c>.</returns>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Exif.Makernotes.DjiMakernoteDirectory.GetAircraftSpeedZ">
+            <summary>
+            Parses various tags in an attempt to obtain a single object representing the z speed,
+            of the aircraft, at which this image was captured.
+            </summary>
+            <returns>The z speed of the aircraft for this image, if possible, otherwise <c>null</c>.</returns>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Exif.Makernotes.DjiMakernoteDirectory.GetAircraftPitch">
+            <summary>
+            Parses various tags in an attempt to obtain a single object representing the pitch,
+            of the aircraft, at which this image was captured.
+            </summary>
+            <returns>The pitch of the aircraft for this image, if possible, otherwise <c>null</c>.</returns>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Exif.Makernotes.DjiMakernoteDirectory.GetAircraftYaw">
+            <summary>
+            Parses various tags in an attempt to obtain a single object representing the yaw,
+            of the aircraft, at which this image was captured.
+            </summary>
+            <returns>The yaw of the aircraft for this image, if possible, otherwise <c>null</c>.</returns>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Exif.Makernotes.DjiMakernoteDirectory.GetAircraftRoll">
+            <summary>
+            Parses various tags in an attempt to obtain a single object representing the roll,
+            of the aircraft, at which this image was captured.
+            </summary>
+            <returns>The roll of the aircraft for this image, if possible, otherwise <c>null</c>.</returns>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Exif.Makernotes.DjiMakernoteDirectory.GetCameraPitch">
+            <summary>
+            Parses various tags in an attempt to obtain a single object representing the pitch,
+            of the camera, at which this image was captured.
+            </summary>
+            <returns>The pitch of the camera for this image, if possible, otherwise <c>null</c>.</returns>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Exif.Makernotes.DjiMakernoteDirectory.GetCameraYaw">
+            <summary>
+            Parses various tags in an attempt to obtain a single object representing the yaw,
+            of the camera, at which this image was captured.
+            </summary>
+            <returns>The yaw of the camera for this image, if possible, otherwise <c>null</c>.</returns>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Exif.Makernotes.DjiMakernoteDirectory.GetCameraRoll">
+            <summary>
+            Parses various tags in an attempt to obtain a single object representing the roll,
+            of the camera, at which this image was captured.
+            </summary>
+            <returns>The roll of the camera for this image, if possible, otherwise <c>null</c>.</returns>
         </member>
         <member name="T:MetadataExtractor.Formats.Exif.Makernotes.FujifilmMakernoteDescriptor">
             <summary>
@@ -3150,6 +3520,15 @@
         <member name="F:MetadataExtractor.Formats.Exif.Makernotes.PentaxMakernoteDirectory.TagDaylightSavings">
             <summary>(String).</summary>
         </member>
+        <member name="T:MetadataExtractor.Formats.Exif.Makernotes.ReconyxHyperFire2MakernoteDescriptor">
+            <summary>
+            Provides human-readable string representations of tag values stored in a <see cref="T:MetadataExtractor.Formats.Exif.Makernotes.ReconyxHyperFire2MakernoteDirectory"/>.
+            </summary>
+            <remarks>Reconyx uses a fixed makernote block. Tag values are the byte index of the tag within the makernote.</remarks>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Exif.Makernotes.ReconyxHyperFire2MakernoteDirectory">
+            <summary>Describes tags specific to Reconyx HyperFire 2 cameras.</summary>
+        </member>
         <member name="T:MetadataExtractor.Formats.Exif.Makernotes.ReconyxHyperFireMakernoteDescriptor">
             <summary>
             Provides human-readable string representations of tag values stored in a <see cref="T:MetadataExtractor.Formats.Exif.Makernotes.ReconyxHyperFireMakernoteDirectory"/>.
@@ -3177,12 +3556,12 @@
             <author>Todd West http://cascadescarnivoreproject.blogspot.com</author>
             <remarks>Reconyx uses a fixed makernote block.  Tag values are the byte index of the tag within the makernote.</remarks>
         </member>
-        <member name="F:MetadataExtractor.Formats.Exif.Makernotes.ReconyxUltraFireMakernoteDirectory.MakernoteID">
+        <member name="F:MetadataExtractor.Formats.Exif.Makernotes.ReconyxUltraFireMakernoteDirectory.MakernoteId">
             <summary>
             Version number used for identifying makernotes from Reconyx UltraFire cameras.
             </summary>
         </member>
-        <member name="F:MetadataExtractor.Formats.Exif.Makernotes.ReconyxUltraFireMakernoteDirectory.MakernotePublicID">
+        <member name="F:MetadataExtractor.Formats.Exif.Makernotes.ReconyxUltraFireMakernoteDirectory.MakernotePublicId">
             <summary>
             Version number used for identifying the public portion of makernotes from Reconyx UltraFire cameras.
             </summary>
@@ -3346,6 +3725,12 @@
         </member>
         <member name="M:MetadataExtractor.Formats.FileSystem.FileMetadataReader.Read(System.String)">
             <exception cref="T:System.IO.IOException"/>
+        </member>
+        <member name="T:MetadataExtractor.Formats.FileType.FileTypeDescriptor">
+            <author>Drew Noakes https://drewnoakes.com</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.FileType.FileTypeDirectory">
+            <author>Drew Noakes https://drewnoakes.com</author>
         </member>
         <member name="T:MetadataExtractor.Formats.Gif.GifAnimationDescriptor">
             <author>Drew Noakes https://drewnoakes.com</author>
@@ -3545,6 +3930,26 @@
             <param name="bytes">some text as bytes</param>
             <returns>the name of the encoding or null if none could be guessed</returns>
         </member>
+        <member name="P:MetadataExtractor.Formats.Iso14496.BoxLocation.Origin">
+            <summary>
+            Gets the offset within the file at which the box resides.
+            </summary>
+        </member>
+        <member name="P:MetadataExtractor.Formats.Iso14496.BoxLocation.Length">
+            <summary>
+            Gets the length of this box in bytes.
+            </summary>
+        </member>
+        <member name="P:MetadataExtractor.Formats.Iso14496.BoxLocation.NextPosition">
+            <summary>
+            Gets the offset within the file at which the next box resides.
+            </summary>
+        </member>
+        <member name="P:MetadataExtractor.Formats.Iso14496.BoxLocation.TypeString">
+            <summary>
+            Gets the four character code which identifies this box.
+            </summary>
+        </member>
         <member name="T:MetadataExtractor.Formats.Jfif.JfifDescriptor">
             <summary>Provides human-readable string versions of the tags stored in a <see cref="T:MetadataExtractor.Formats.Jfif.JfifDirectory"/>.</summary>
             <remarks>
@@ -3607,6 +4012,110 @@
         <member name="M:MetadataExtractor.Formats.Jfxx.JfxxReader.Extract(MetadataExtractor.IO.IndexedReader)">
             <summary>Reads JFXX values and returns them in an <see cref="T:MetadataExtractor.Formats.Jfxx.JfxxDirectory"/>.</summary>
         </member>
+        <member name="T:MetadataExtractor.Formats.Jpeg.HuffmanTablesDescriptor">
+            <summary>Provides a human-readable string version of the tag stored in a HuffmanTablesDirectory.</summary>
+            <remarks>
+            Provides a human-readable string versions of the tag stored in a HuffmanTablesDirectory.
+            <list type="bullet">
+              <item>https://en.wikipedia.org/wiki/Huffman_coding</item>
+              <item>http://stackoverflow.com/a/4954117</item>
+            </list>
+            </remarks>
+            <author>Nadahar</author>
+            <author>Kevin Mott https://github.com/kwhopper</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Jpeg.HuffmanTablesDirectory">
+            <summary>Directory of tables for the DHT (Define Huffman Table(s)) segment.</summary>
+            <author>Nadahar</author>
+            <author>Kevin Mott https://github.com/kwhopper</author>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Jpeg.HuffmanTablesDirectory.GetTable(System.Int32)">
+            <remarks>Use GetNumberOfTables for bounds-checking.</remarks>
+            <param name="tableNumber">The zero-based index of the table. This number is normally between 0 and 3.</param>
+            <returns>The HuffmanTable having the specified number.</returns>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Jpeg.HuffmanTablesDirectory.GetNumberOfTables">
+            <returns>The number of Huffman tables held by this HuffmanTablesDirectory instance.</returns>
+        </member>
+        <member name="F:MetadataExtractor.Formats.Jpeg.HuffmanTablesDirectory._tables">
+            <returns>The List of HuffmanTables in this Directory.</returns>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Jpeg.HuffmanTablesDirectory.IsTypical">
+            <summary>Evaluates whether all the tables in this HuffmanTablesDirectory are "typical" Huffman tables.</summary>
+            <remarks>
+            "Typical" has a special meaning in this context as the JPEG standard
+            (ISO/IEC 10918 or ITU-T T.81) defines 4 Huffman tables that has been
+            developed from the average statistics of a large set of images with 8-bit
+            precision. Using these instead of calculating the optimal Huffman tables
+            for a given image is faster, and is preferred by many hardware encoders
+            and some hardware decoders.
+            <para/>
+            Even though the JPEG standard doesn't define these as "standard tables"
+            and requires a decoder to be able to read any valid Huffman tables, some
+            are in reality limited decoding images using these "typical" tables.
+            Standards like DCF(Design rule for Camera File system) and DLNA(Digital
+            Living Network Alliance) actually requires any compliant JPEG to use only
+            the "typical" Huffman tables.
+            <para/>
+            This is also related to the term "optimized" JPEG. An "optimized" JPEG is
+            a JPEG that doesn't use the "typical" Huffman tables.
+            </remarks>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Jpeg.HuffmanTablesDirectory.IsOptimized">
+            <remarks>The opposite of IsTypical().</remarks>
+            <returns>
+            Whether or not the tables in this HuffmanTablesDirectory
+            are "optimized" - which means that at least one of them aren't
+            one of the "typical" Huffman tables.
+            </returns>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Jpeg.HuffmanTable">
+            <summary>A JPEG Huffman table.</summary>
+        </member>
+        <member name="P:MetadataExtractor.Formats.Jpeg.HuffmanTable.TableLength">
+            <returns>The table length in bytes.</returns>
+        </member>
+        <member name="P:MetadataExtractor.Formats.Jpeg.HuffmanTable.TableClass">
+            <returns>The HuffmanTableClass of this table.</returns>
+        </member>
+        <member name="P:MetadataExtractor.Formats.Jpeg.HuffmanTable.TableDestinationId">
+            <returns>The destination identifier for this table.</returns>
+        </member>
+        <member name="P:MetadataExtractor.Formats.Jpeg.HuffmanTable.LengthBytes">
+            <returns>A byte array with the L values for this table.</returns>
+        </member>
+        <member name="P:MetadataExtractor.Formats.Jpeg.HuffmanTable.ValueBytes">
+            <returns>A byte array with the V values for this table.</returns>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Jpeg.HuffmanTable.IsTypical">
+            <summary>Evaluates whether this table is a "typical" Huffman table.</summary>
+            <remarks>
+            "Typical" has a special meaning in this context as the JPEG standard
+            (ISO/IEC 10918 or ITU-T T.81) defines 4 Huffman tables that has been
+            developed from the average statistics of a large set of images with 8-bit
+            precision. Using these instead of calculating the optimal Huffman tables
+            for a given image is faster, and is preferred by many hardware encoders
+            and some hardware decoders.
+            <para/>
+            Even though the JPEG standard doesn't define these as "standard tables"
+            and requires a decoder to be able to read any valid Huffman tables, some
+            are in reality limited decoding images using these "typical" tables.
+            Standards like DCF(Design rule for Camera File system) and DLNA(Digital
+            Living Network Alliance) actually requires any compliant JPEG to use only
+            the "typical" Huffman tables.
+            <para/>
+            This is also related to the term "optimized" JPEG. An "optimized" JPEG is
+            a JPEG that doesn't use the "typical" Huffman tables.
+            </remarks>
+            <returns>Whether or not this table is one of the predefined "typical" Huffman tables.</returns>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Jpeg.HuffmanTable.IsOptimized">
+            <remarks>The opposite of IsTypical().</remarks>
+            <returns>
+            Whether or not this table is "optimized" - which means that
+            it isn't one of the "typical" Huffman tables.
+            </returns>
+        </member>
         <member name="T:MetadataExtractor.Formats.Jpeg.IJpegSegmentMetadataReader">
             <summary>Defines an object that extracts metadata from in JPEG segments.</summary>
         </member>
@@ -3662,6 +4171,12 @@
             Thanks to Darrell Silver (www.darrellsilver.com) for the initial version of this class.
             </remarks>
             <author>Drew Noakes https://drewnoakes.com</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Jpeg.JpegDhtReader">
+            <summary>Reader for JPEG Huffman tables, found in the DHT JPEG segment.</summary>
+            <seealso cref="T:MetadataExtractor.Formats.Jpeg.JpegSegment"/>
+            <author>Nadahar</author>
+            <author>Kevin Mott https://github.com/kwhopper</author>
         </member>
         <member name="T:MetadataExtractor.Formats.Jpeg.JpegDirectory">
             <summary>Directory of tags and values for the SOF0 JPEG segment.</summary>
@@ -3722,6 +4237,26 @@
         </member>
         <member name="M:MetadataExtractor.Formats.Jpeg.JpegDirectory.GetNumberOfComponents">
             <exception cref="T:MetadataExtractor.MetadataException"/>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Jpeg.JpegDnlDescriptor">
+            <summary>
+            Provides human-readable string representations of tag values stored in a <see cref="T:MetadataExtractor.Formats.Jpeg.JpegDnlDirectory"/>.
+            </summary>
+            <author>Kevin Mott https://github.com/kwhopper</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Jpeg.JpegDnlDirectory">
+            <summary>Describes tags parsed from JPEG DNL data, holding the image height with information missing from the JPEG SOFx segment</summary>
+            <author>Kevin Mott https://github.com/kwhopper</author>
+        </member>
+        <member name="F:MetadataExtractor.Formats.Jpeg.JpegDnlDirectory.TagImageHeight">
+            <summary>The image's height, gleaned from DNL data instead of an SOFx segment</summary>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Jpeg.JpegDnlReader">
+            <summary>Decodes JPEG DNL image height data.</summary>
+            <remarks>The current implementation only calls this reader if image height is missing from the JPEG SOFx segment.</remarks>
+            <seealso cref="T:MetadataExtractor.Formats.Jpeg.JpegSegment"/>
+            <author>Nadahar</author>
+            <author>Kevin Mott https://github.com/kwhopper</author>
         </member>
         <member name="T:MetadataExtractor.Formats.Jpeg.JpegMetadataReader">
             <summary>Obtains all available metadata from JPEG formatted files.</summary>
@@ -3814,14 +4349,6 @@
             <summary>For temporary use in arithmetic coding.</summary>
             <remarks>No length or parameter sequence follows this marker.</remarks>
         </member>
-        <member name="F:MetadataExtractor.Formats.Jpeg.JpegSegmentType.Soi">
-            <summary>Start Of Image segment. Begins the compressed JPEG data stream.</summary>
-            <remarks>No length or parameter sequence follows this marker.</remarks>
-        </member>
-        <member name="F:MetadataExtractor.Formats.Jpeg.JpegSegmentType.Dqt">
-            <summary>Define Quantization Table.</summary>
-            <remarks>Specifies one or more quantization tables.</remarks>
-        </member>
         <member name="F:MetadataExtractor.Formats.Jpeg.JpegSegmentType.Sof0">
             <summary>Start-of-Frame, non-differential Huffman coding frame, baseline DCT.</summary>
             <remarks>
@@ -3908,6 +4435,10 @@
             <summary>Restart.</summary>
             <remarks>No length or parameter sequence follows this marker.</remarks>
         </member>
+        <member name="F:MetadataExtractor.Formats.Jpeg.JpegSegmentType.Soi">
+            <summary>Start Of Image segment. Begins the compressed JPEG data stream.</summary>
+            <remarks>No length or parameter sequence follows this marker.</remarks>
+        </member>
         <member name="F:MetadataExtractor.Formats.Jpeg.JpegSegmentType.Eoi">
             <summary>End-of-Image. Terminates the JPEG compressed data stream that started at <see cref="F:MetadataExtractor.Formats.Jpeg.JpegSegmentType.Soi"/>.</summary>
             <remarks>No length or parameter sequence follows this marker.</remarks>
@@ -3921,6 +4452,10 @@
             This marker specifies which slice of data it will contain, and is
             immediately followed by entropy-coded data.
             </remarks>
+        </member>
+        <member name="F:MetadataExtractor.Formats.Jpeg.JpegSegmentType.Dqt">
+            <summary>Define Quantization Table.</summary>
+            <remarks>Specifies one or more quantization tables.</remarks>
         </member>
         <member name="F:MetadataExtractor.Formats.Jpeg.JpegSegmentType.Dnl">
             <summary>Define Number of Lines.</summary>
@@ -4067,6 +4602,31 @@
             <summary>Reads Photoshop "ducky" segments, created during Save-for-Web.</summary>
             <author>Drew Noakes https://drewnoakes.com</author>
         </member>
+        <member name="T:MetadataExtractor.Formats.Photoshop.Knot">
+            <summary>
+            Represents a knot created by Photoshop:
+            <list type="bullet">
+            <item>Linked knot</item>
+            <item>Unlinked knot</item>
+            </list>
+            </summary>
+            <author>Payton Garland</author>
+            <author>Kevin Mott https://github.com/kwhopper</author>
+        </member>
+        <member name="P:MetadataExtractor.Formats.Photoshop.Knot.Item(System.Int32)">
+            <summary>
+            Add/Get an individual coordinate value (x or y) to/from
+            points array (6 points per knot)
+            </summary>
+            <param name="index"></param>
+            <returns>an individual coordinate value</returns>
+            <remarks>Define the indexer to allow client code to use [] notation</remarks>
+        </member>
+        <member name="P:MetadataExtractor.Formats.Photoshop.Knot.Type">
+            <summary>
+            Get the type of knot (linked or unlinked)
+            </summary>
+        </member>
         <member name="T:MetadataExtractor.Formats.Photoshop.PhotoshopDescriptor">
             <author>Yuri Binev</author>
             <author>Drew Noakes https://drewnoakes.com</author>
@@ -4085,6 +4645,10 @@
             </remarks>
             <author>Yuri Binev</author>
             <author>Drew Noakes https://drewnoakes.com</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Photoshop.PhotoshopTiffHandler">
+            <author>Payton Garland</author>
+            <author>Kevin Mott https://github.com/kwhopper</author>
         </member>
         <member name="T:MetadataExtractor.Formats.Photoshop.PsdHeaderDescriptor">
             <author>Drew Noakes https://drewnoakes.com</author>
@@ -4124,6 +4688,36 @@
         <member name="T:MetadataExtractor.Formats.Photoshop.PsdReader">
             <summary>Reads metadata stored within PSD file format data.</summary>
             <author>Drew Noakes https://drewnoakes.com</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Photoshop.Subpath">
+            <summary>
+            Represents a subpath created by Photoshop:
+            <list type="bullet">
+            <item>Closed Bezier knot, linked</item>
+            <item>Closed Bezier knot, unlinked</item>
+            <item>Open Bezier knot, linked</item>
+            <item>Open Bezier knot, unlinked</item>
+            </list>
+            </summary>
+            <author>Payton Garland</author>
+            <author>Kevin Mott https://github.com/kwhopper</author>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Photoshop.Subpath.Add(MetadataExtractor.Formats.Photoshop.Knot)">
+            <summary>
+            Appends a knot (set of 3 points) into the list
+            </summary>
+            <param name="knot"></param>
+        </member>
+        <member name="P:MetadataExtractor.Formats.Photoshop.Subpath.KnotCount">
+            <summary>
+            Gets size of knots list
+            </summary>
+            <returns>size of knots List</returns>
+        </member>
+        <member name="P:MetadataExtractor.Formats.Photoshop.Subpath.Knots">
+            <summary>
+            Return a read-only list of Knots
+            </summary>
         </member>
         <member name="T:MetadataExtractor.Formats.Png.PngChromaticities">
             <author>Drew Noakes https://drewnoakes.com</author>
@@ -4315,6 +4909,9 @@
             <summary>
             Static class for processing atoms the QuickTime container format.
             </summary>
+            <remarks>
+            QuickTime file format specification: https://developer.apple.com/library/mac/documentation/QuickTime/QTFF/qtff.pdf
+            </remarks>
         </member>
         <member name="M:MetadataExtractor.Formats.QuickTime.QuickTimeReader.ProcessAtoms(System.IO.Stream,System.Action{MetadataExtractor.Formats.QuickTime.AtomCallbackArgs},System.Int64)">
             <summary>
@@ -4329,10 +4926,27 @@
             Extension methods for reading QuickTime specific encodings from a <see cref="T:MetadataExtractor.IO.SequentialReader"/>.
             </summary>
         </member>
+        <member name="M:MetadataExtractor.Formats.QuickTime.QuickTimeReaderExtensions.GetMatrix(MetadataExtractor.IO.SequentialReader)">
+            <summary>
+            Returns a matrix as float[9].
+            See <a href="https://developer.apple.com/library/archive/documentation/QuickTime/QTFF/QTFFChap4/qtff4.html#//apple_ref/doc/uid/TP40000939-CH206-18737">QuickTime File Format Specification</a>.
+            </summary>
+            <param name="reader">The reader.</param>
+            <returns>System.Single[].</returns>
+        </member>
+        <member name="T:MetadataExtractor.Formats.QuickTime.QuickTimeTypeChecker">
+            <author>Dmitry Shechtman</author>
+        </member>
         <member name="T:MetadataExtractor.Formats.Raf.RafMetadataReader">
             <summary>Obtains metadata from RAF (Fujifilm camera raw) image files.</summary>
             <author>TSGames https://github.com/TSGames</author>
             <author>Drew Noakes https://drewnoakes.com</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Riff.IRiffChunkHandler">
+            <summary>
+            Interface of a class capable of handling an individual RIFF chunk.
+            </summary>
+            <author>Dmitry Shechtman</author>
         </member>
         <member name="T:MetadataExtractor.Formats.Riff.IRiffHandler">
             <summary>
@@ -4357,11 +4971,35 @@
             <param name="fourCc">the four character code of this chunk</param>
             <returns><c>true</c> if <see cref="M:MetadataExtractor.Formats.Riff.IRiffHandler.ProcessChunk(System.String,System.Byte[])"/> should be called, otherwise <c>false</c>.</returns>
         </member>
+        <member name="M:MetadataExtractor.Formats.Riff.IRiffHandler.ShouldAcceptList(System.String)">
+            <summary>Gets whether this handler is interested in the specific list type.</summary>
+            <remarks>
+            Returns <c>true</c> if the data should be copied into an array and passed
+            to <see cref="M:MetadataExtractor.Formats.Riff.IRiffHandler.ProcessChunk(System.String,System.Byte[])"/>, or <c>false</c> to avoid
+            the copy and skip to the next chunk in the file, if any.
+            </remarks>
+            <param name="fourCc">the four character code of this chunk</param>
+            <returns><c>true</c> if <see cref="M:MetadataExtractor.Formats.Riff.IRiffHandler.ProcessChunk(System.String,System.Byte[])"/> should be called, otherwise <c>false</c>.</returns>
+        </member>
         <member name="M:MetadataExtractor.Formats.Riff.IRiffHandler.ProcessChunk(System.String,System.Byte[])">
             <summary>Perform whatever processing is necessary for the type of chunk with its payload.</summary>
             <remarks>This is only called if a previous call to <see cref="M:MetadataExtractor.Formats.Riff.IRiffHandler.ShouldAcceptChunk(System.String)"/> with the same <c>fourCC</c> returned <c>true</c>.</remarks>
             <param name="fourCc">the four character code of the chunk</param>
             <param name="payload">they payload of the chunk as a byte array</param>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Riff.RiffChunkHandler`1">
+            <summary>
+            Base class for <see cref="T:MetadataExtractor.Formats.Riff.IRiffChunkHandler"/> implementations.
+            </summary>
+            <typeparam name="T">Directory type.</typeparam>
+            <author>Dmitry Shechtman</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Riff.RiffHandler">
+            <summary>
+            Implementation of <see cref="T:MetadataExtractor.Formats.Riff.IRiffHandler"/> using a dictionary of
+            <see cref="T:MetadataExtractor.Formats.Riff.IRiffChunkHandler"/> factory delegates.
+            </summary>
+            <author>Dmitry Shechtman</author>
         </member>
         <member name="T:MetadataExtractor.Formats.Riff.RiffProcessingException">
             <summary>An exception class thrown upon unexpected and fatal conditions while processing a RIFF file.</summary>
@@ -4387,6 +5025,55 @@
             <param name="handler">The <see cref="T:MetadataExtractor.Formats.Riff.IRiffHandler"/> that will coordinate processing and accept read values.</param>
             <exception cref="T:MetadataExtractor.Formats.Riff.RiffProcessingException">An error occurred during the processing of RIFF data that could not be ignored or recovered from.</exception>
             <exception cref="T:System.IO.IOException">an error occurred while accessing the required data</exception>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Riff.RiffTypeChecker">
+            <author>Drew Noakes https://drewnoakes.com</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Tga.TgaDeveloperDirectory">
+            <author>Dmitry Shechtman</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Tga.TgaDeveloperReader">
+            <summary>Reads TGA image file developer area.</summary>
+            <author>Dmitry Shechtman</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Tga.TgaExtensionDescriptor">
+            <author>Dmitry Shechtman</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Tga.TgaExtensionDirectory">
+            <author>Dmitry Shechtman</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Tga.TgaExtensionReader">
+            <summary>Reads TGA image file extension area.</summary>
+            <author>Dmitry Shechtman</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Tga.TgaFooterReader">
+            <summary>Reads TGA image file footer.</summary>
+            <author>Dmitry Shechtman</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Tga.TgaHeaderDescriptor">
+            <author>Dmitry Shechtman</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Tga.TgaHeaderDirectory">
+            <author>Dmitry Shechtman</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Tga.TgaHeaderReader">
+            <summary>Reads TGA image file header.</summary>
+            <author>Dmitry Shechtman</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Tga.TgaMetadataReader">
+            <summary>Obtains metadata from TGA (Truevision) files.</summary>
+            <author>Drew Noakes https://drewnoakes.com</author>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Tga.TgaMetadataReader.ReadMetadata(System.String)">
+            <exception cref="T:System.IO.IOException"/>
+            <exception cref="T:System.ArgumentException"/>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Tga.TgaMetadataReader.ReadMetadata(System.IO.Stream)">
+            <exception cref="T:System.IO.IOException"/>
+            <exception cref="T:System.ArgumentException"/>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Tga.TgaTypeChecker">
+            <author>Dmitry Shechtman</author>
         </member>
         <member name="T:MetadataExtractor.Formats.Tiff.DirectoryTiffHandler">
             <summary>
@@ -4487,6 +5174,62 @@
             </remarks>
             <param name="ifdStartOffset">the offset at which the IFD starts</param>
             <param name="entryNumber">the zero-based entry number</param>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Wav.WavFactDirectory">
+            <author>Dmitry Shechtman</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Wav.WavFactHandler">
+            <summary>
+            Implementation of <see cref="T:MetadataExtractor.Formats.Riff.IRiffChunkHandler"/> for WAV "fact" chunk.
+            </summary>
+            <remarks>
+            Source:
+            http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html
+            </remarks>
+            <author>Dmitry Shechtman</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Wav.WavFormatDescriptor">
+            <author>Dmitry Shechtman</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Wav.WavFormatDirectory">
+            <author>Dmitry Shechtman</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Wav.WavFormatHandler">
+            <summary>
+            Implementation of <see cref="T:MetadataExtractor.Formats.Riff.IRiffChunkHandler"/> for WAV "fmt " chunk.
+            </summary>
+            <remarks>
+            Source:
+            http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html
+            </remarks>
+            <author>Dmitry Shechtman</author>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Wav.WavMetadataReader">
+            <summary>Obtains metadata from WAV files.</summary>
+            <author>Drew Noakes https://drewnoakes.com</author>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Wav.WavMetadataReader.ReadMetadata(System.String)">
+            <exception cref="T:System.IO.IOException"/>
+            <exception cref="T:MetadataExtractor.Formats.Riff.RiffProcessingException"/>
+        </member>
+        <member name="M:MetadataExtractor.Formats.Wav.WavMetadataReader.ReadMetadata(System.IO.Stream)">
+            <exception cref="T:System.IO.IOException"/>
+            <exception cref="T:MetadataExtractor.Formats.Riff.RiffProcessingException"/>
+        </member>
+        <member name="T:MetadataExtractor.Formats.Wav.WavRiffHandler">
+            <summary>
+            Implementation of <see cref="T:MetadataExtractor.Formats.Riff.IRiffHandler"/> specialising in WAV support.
+            </summary>
+            <remarks>
+            Extracts data from chunk/list types:
+            <list type="bullet">
+              <item><c>"fmt "</c>: base format data</item>
+              <item><c>"fact"</c>: number of samples</item>
+            </list>
+            Source:
+            http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html
+            </remarks>
+            <author>Dmitry Shechtman</author>
         </member>
         <member name="T:MetadataExtractor.Formats.WebP.WebPDescriptor">
             <author>Drew Noakes https://drewnoakes.com</author>
@@ -4694,9 +5437,16 @@
             <author>Drew Noakes https://drewnoakes.com</author>
         </member>
         <member name="P:MetadataExtractor.IO.IndexedCapturingReader.Length">
-            <summary>Reads to the end of the stream, in order to determine the total number of bytes.</summary>
-            <remarks>In general, this is not a good idea for this implementation of <see cref="T:MetadataExtractor.IO.IndexedReader"/>.</remarks>
-            <value>the length of the data source, in bytes.</value>
+            <summary>
+            Returns the length of the data stream this reader is reading from.
+            </summary>
+            <remarks>
+            If the underlying stream's <see cref="P:System.IO.Stream.Length"/> property does not throw <see cref="T:System.NotSupportedException"/> then it can be used directly.
+            However if it does throw, then this class has no alternative but to reads to the end of the stream in order to determine the total number of bytes.
+            <para />
+            In general, this is not a good idea for this implementation of <see cref="T:MetadataExtractor.IO.IndexedReader"/>.
+            </remarks>
+            <value>The length of the data source, in bytes.</value>
             <exception cref="T:MetadataExtractor.IO.BufferBoundsException"/>
         </member>
         <member name="M:MetadataExtractor.IO.IndexedCapturingReader.ValidateIndex(System.Int32,System.Int32)">
@@ -4944,6 +5694,26 @@
             <returns>a boolean indicating whether the skip succeeded, or whether the sequence ended.</returns>
             <exception cref="T:System.IO.IOException">an error occurred reading from the underlying source.</exception>
         </member>
+        <member name="M:MetadataExtractor.IO.SequentialReader.Available">
+            <summary>
+            Returns an estimate of the number of bytes that can be read (or skipped over)
+            from this SequentialReader without blocking by the next
+            invocation of a method for this input stream.A single read or skip of
+            this many bytes will not block, but may read or skip fewer bytes.
+            </summary>
+            <remarks>
+            Note that while some implementations of SequentialReader like
+            SequentialByteArrayReader will return the total remaining number
+            of bytes in the stream, others will not. It is never correct to use the
+            return value of this method to allocate a buffer intended to hold all
+            data in this stream.
+            </remarks>
+            <returns>
+            an estimate of the number of bytes that can be read (or skipped
+            over) from this SequentialReader without blocking or
+            0 when it reaches the end of the input stream.
+            </returns>
+        </member>
         <member name="M:MetadataExtractor.IO.SequentialReader.GetByte">
             <summary>Returns the next unsigned byte from the sequence.</summary>
             <returns>the 8 bit int value, between 0 and 255</returns>
@@ -4977,6 +5747,11 @@
         <member name="M:MetadataExtractor.IO.SequentialReader.GetInt64">
             <summary>Get a signed 64-bit integer from the buffer.</summary>
             <returns>the 64 bit int value, between 0x0000000000000000 and 0xFFFFFFFFFFFFFFFF</returns>
+            <exception cref="T:System.IO.IOException">the buffer does not contain enough bytes to service the request</exception>
+        </member>
+        <member name="M:MetadataExtractor.IO.SequentialReader.GetUInt64">
+            <summary>Get an usigned 64-bit integer from the buffer.</summary>
+            <returns>the unsigned 64 bit int value, between 0x0000000000000000 and 0xFFFFFFFFFFFFFFFF</returns>
             <exception cref="T:System.IO.IOException">the buffer does not contain enough bytes to service the request</exception>
         </member>
         <member name="M:MetadataExtractor.IO.SequentialReader.GetS15Fixed16">
@@ -5032,6 +5807,14 @@
             </param>
             <returns>The read byte array, excluding the null terminator.</returns>
             <exception cref="T:System.IO.IOException">The buffer does not contain enough bytes to satisfy this request.</exception>
+        </member>
+        <member name="M:MetadataExtractor.IO.SequentialReader.IsCloserToEnd(System.Int64)">
+            <summary>
+            Returns true in case the stream supports length checking and distance to the end of the stream is less then number of bytes in parameter.
+            Otherwise false.
+            </summary>
+            <param name="numberOfBytes"></param>
+            <returns>True if we going to have an exception while reading next numberOfBytes bytes from the stream</returns>
         </member>
         <member name="T:MetadataExtractor.IO.SequentialStreamReader">
             <author>Drew Noakes https://drewnoakes.com</author>
@@ -5151,6 +5934,11 @@
             <summary>Gets the reciprocal value of this object as a new <see cref="T:MetadataExtractor.Rational"/>.</summary>
             <value>the reciprocal in a new object</value>
         </member>
+        <member name="P:MetadataExtractor.Rational.Absolute">
+            <summary>
+            Gets the absolute value of this object as a new <see cref="T:MetadataExtractor.Rational"/>.
+            </summary>
+        </member>
         <member name="P:MetadataExtractor.Rational.IsInteger">
             <summary>
             Checks if this <see cref="T:MetadataExtractor.Rational"/> number is expressible as an integer, either positive or negative.
@@ -5159,6 +5947,12 @@
         <member name="P:MetadataExtractor.Rational.IsZero">
             <summary>
             True if either <see cref="P:MetadataExtractor.Rational.Denominator"/> or <see cref="P:MetadataExtractor.Rational.Numerator"/> are zero.
+            </summary>
+        </member>
+        <member name="P:MetadataExtractor.Rational.IsPositive">
+            <summary>
+            True if <see cref="P:MetadataExtractor.Rational.IsZero"/> is false and <see cref="P:MetadataExtractor.Rational.Numerator"/> and <see cref="P:MetadataExtractor.Rational.Denominator"/> are
+            either both positive or both negative.
             </summary>
         </member>
         <member name="M:MetadataExtractor.Rational.ToString">
@@ -5209,6 +6003,17 @@
             <returns>
             A simplified instance if one exists, otherwise a copy of the original value.
             </returns>
+        </member>
+        <member name="T:MetadataExtractor.StringBuilderExtensions">
+            <author>Kevin Mott https://github.com/kwhopper</author>
+        </member>
+        <member name="M:MetadataExtractor.StringBuilderExtensions.IndexOf(System.Text.StringBuilder,System.Char)">
+            <summary>
+            Returns the first index of character <paramref name="c"/> in <paramref name="sb"/>,
+            or <c>-1</c> if it is not found.
+            </summary>
+            <param name="sb">The <see cref="T:System.Text.StringBuilder"/> to search within.</param>
+            <param name="c">The character to find.</param>
         </member>
         <member name="T:MetadataExtractor.StringValue">
             <summary>
@@ -5298,8 +6103,8 @@
             <remarks>
             Two different formats are processed:
             <list type="bullet">
-            <item>[30 32 31 30] -&gt; 2.10</item>
-            <item>[0 1 0 0] -&gt; 1.00</item>
+            <item>[0x30 0x32 0x31 0x30] ⇒ 2.10</item>
+            <item>[0 1 0 0] ⇒ 1.00</item>
             </list>
             </remarks>
             <param name="components">the four version values</param>
@@ -5320,6 +6125,13 @@
             <summary>Gets the maximum depth stored in this trie.</summary>
         </member>
         <member name="M:MetadataExtractor.Util.ByteTrie`1.Find(System.Byte[])">
+            <summary>Return the most specific value stored for this byte sequence.</summary>
+            <remarks>
+            If not found, returns <c>null</c> or a default values as specified by
+            calling <see cref="M:MetadataExtractor.Util.ByteTrie`1.SetDefaultValue(`0)"/>.
+            </remarks>
+        </member>
+        <member name="M:MetadataExtractor.Util.ByteTrie`1.Find(System.Byte[],System.Int32,System.Int32)">
             <summary>Return the most specific value stored for this byte sequence.</summary>
             <remarks>
             If not found, returns <c>null</c> or a default values as specified by
@@ -5373,6 +6185,15 @@
         <member name="F:MetadataExtractor.Util.FileType.Riff">
             <summary>Resource Interchange File Format.</summary>
         </member>
+        <member name="F:MetadataExtractor.Util.FileType.Wav">
+            <summary>Waveform Audio File Format.</summary>
+        </member>
+        <member name="F:MetadataExtractor.Util.FileType.Avi">
+            <summary>Audio Video Interleaved.</summary>
+        </member>
+        <member name="F:MetadataExtractor.Util.FileType.WebP">
+            <summary>WebP.</summary>
+        </member>
         <member name="F:MetadataExtractor.Util.FileType.Arw">
             <summary>Sony camera raw.</summary>
         </member>
@@ -5400,11 +6221,27 @@
         <member name="F:MetadataExtractor.Util.FileType.Netpbm">
             <summary>Netpbm family of image formats.</summary>
         </member>
+        <member name="F:MetadataExtractor.Util.FileType.Crx">
+            <summary>Canon camera raw (version 3).</summary>
+            <remarks>Shared by CR3 (image) and CRM (video).</remarks>
+        </member>
+        <member name="F:MetadataExtractor.Util.FileType.Eps">
+            <summary>Encapsulated PostScript.</summary>
+        </member>
+        <member name="F:MetadataExtractor.Util.FileType.Tga">
+            <summary>Truevision graphics.</summary>
+        </member>
+        <member name="F:MetadataExtractor.Util.FileType.Mp3">
+            <summary>MPEG-1 / MPEG-2 Audio Layer III.</summary>
+        </member>
+        <member name="F:MetadataExtractor.Util.FileType.Mp4">
+            <summary>MPEG-4 Part 14.</summary>
+        </member>
         <member name="T:MetadataExtractor.Util.FileTypeDetector">
             <summary>Examines the a file's first bytes and estimates the file's type.</summary>
         </member>
         <member name="M:MetadataExtractor.Util.FileTypeDetector.DetectFileType(System.IO.Stream)">
-            <summary>Examines the a file's first bytes and estimates the file's type.</summary>
+            <summary>Examines the file's first bytes and estimates the file's type.</summary>
             <exception cref="T:System.ArgumentException">Stream does not support seeking.</exception>
             <exception cref="T:System.IO.IOException">An IO error occurred, or the input stream ended unexpectedly.</exception>
         </member>
@@ -5421,6 +6258,70 @@
             <summary>Converts a shutter speed to an exposure time.</summary>
             <param name="shutterSpeed">the shutter speed to convert</param>
             <returns>the exposure time of the specified shutter speed</returns>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.AllowNullAttribute">
+            <summary>Specifies that null is allowed as an input even if the corresponding type disallows it.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.DisallowNullAttribute">
+            <summary>Specifies that null is disallowed as an input even if the corresponding type allows it.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.MaybeNullAttribute">
+            <summary>Specifies that an output may be null even if the corresponding type disallows it.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.NotNullAttribute">
+            <summary>Specifies that an output will not be null even if the corresponding type allows it.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute">
+            <summary>Specifies that when a method returns <see cref="P:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.ReturnValue"/>, the parameter may be null even if the corresponding type disallows it.</summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.#ctor(System.Boolean)">
+            <summary>Initializes the attribute with the specified return value condition.</summary>
+            <param name="returnValue">
+            The return value condition. If the method returns this value, the associated parameter may be null.
+            </param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.ReturnValue">
+            <summary>Gets the return value condition.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute">
+            <summary>Specifies that when a method returns <see cref="P:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.ReturnValue"/>, the parameter will not be null even if the corresponding type allows it.</summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.#ctor(System.Boolean)">
+            <summary>Initializes the attribute with the specified return value condition.</summary>
+            <param name="returnValue">
+            The return value condition. If the method returns this value, the associated parameter will not be null.
+            </param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.ReturnValue">
+            <summary>Gets the return value condition.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute">
+            <summary>Specifies that the output will be non-null if the named parameter is non-null.</summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute.#ctor(System.String)">
+            <summary>Initializes the attribute with the associated parameter name.</summary>
+            <param name="parameterName">
+            The associated parameter name.  The output will be non-null if the argument to the parameter specified is non-null.
+            </param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute.ParameterName">
+            <summary>Gets the associated parameter name.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute">
+            <summary>Applied to a method that will never return under any circumstance.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute">
+            <summary>Specifies that the method will not return if the associated Boolean parameter is passed the specified value.</summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute.#ctor(System.Boolean)">
+            <summary>Initializes the attribute with the specified parameter value.</summary>
+            <param name="parameterValue">
+            The condition parameter value. Code after the method will be considered unreachable by diagnostics if the argument to
+            the associated parameter matches this value.
+            </param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute.ParameterValue">
+            <summary>Gets the condition parameter value.</summary>
         </member>
     </members>
 </doc>
