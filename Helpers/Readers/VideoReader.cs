@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using MetadataExtractor;
-using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.QuickTime;
 using PhotoStructor.Interfaces;
 
@@ -16,19 +13,18 @@ namespace PhotoStructor.Helpers.Readers
     {
         public string Prefix => "VID";
 
-        public DateTime GetImageData(string path, out string postfix)
+        public DateTime GetImageData(string path)
         {
             try
             {
-                postfix = string.Empty;
                 if (!File.Exists(path))
                 {
                     throw new FileNotFoundException($"File cannot be found by path: {path}");
                 }
 
-                if (Regex.IsMatch(Path.GetFileNameWithoutExtension(path) ?? string.Empty, @"\d{8}-\d{6}"))
+                if (Regex.IsMatch(Path.GetFileNameWithoutExtension(path) ?? string.Empty, @"^\d{8}-\d{6}$"))
                 {
-                    var dateTimeMatch = Regex.Match(Path.GetFileNameWithoutExtension(path) ?? string.Empty, @"\d{8}-\d{6}").Value;
+                    var dateTimeMatch = Regex.Match(Path.GetFileNameWithoutExtension(path) ?? string.Empty, @"^\d{8}-\d{6}$").Value;
                     throw new NotImplementedException("Implement it here.");
                     //return new ImageData
                     //{
@@ -37,9 +33,9 @@ namespace PhotoStructor.Helpers.Readers
                     //};
                 }
 
-                if (Regex.IsMatch(Path.GetFileNameWithoutExtension(path) ?? string.Empty, @"\d{8}_\d{6}"))
+                if (Regex.IsMatch(Path.GetFileNameWithoutExtension(path) ?? string.Empty, @"^\d{8}_\d{6}$"))
                 {
-                    var dateTimeMatch = Regex.Match(Path.GetFileNameWithoutExtension(path) ?? string.Empty, @"\d{8}_\d{6}").Value;
+                    var dateTimeMatch = Regex.Match(Path.GetFileNameWithoutExtension(path) ?? string.Empty, @"^\d{8}_\d{6}$").Value;
                     throw new NotImplementedException("Implement it here.");
                     //return new ImageData
                     //{
@@ -67,8 +63,6 @@ namespace PhotoStructor.Helpers.Readers
                     }
                     
                     var dateTime = DateTime.Parse(dateTimeString);
-
-                    postfix = model.StartsWith("iPhone") || model.StartsWith("iPad") ? "i" : string.Empty;
                     return dateTime;
                 }
 
@@ -84,7 +78,10 @@ namespace PhotoStructor.Helpers.Readers
                     var originalDateTime = DateTime.ParseExact(dateTimeString, "ddd MMM dd HH:mm:ss yyyy", CultureInfo.CurrentCulture);
                     var dateTime = TimeZone.CurrentTimeZone.ToLocalTime(originalDateTime);
 
-                    return dateTime;
+                    if (dateTime.Year >= 2000)
+                    {
+                        return dateTime;
+                    }
                 }
                 
                 var fileInfo = new FileInfo(path);
@@ -92,12 +89,11 @@ namespace PhotoStructor.Helpers.Readers
             }
             catch (Exception e)
             {
-                ConsoleHelper.WriteLine($"\tException occured for file:\r\n\t{path}", ConsoleColor.Red);
+                ConsoleHelper.WriteLine($"\tException occurred for file:\r\n\t{path}", ConsoleColor.Red);
                 ConsoleHelper.WriteLine($"\t{e.Message}", ConsoleColor.Red);
                 ConsoleHelper.WriteLine();
-
-                postfix = string.Empty;
-                return default(DateTime);
+                
+                return default;
             }
         }
 
@@ -121,7 +117,7 @@ namespace PhotoStructor.Helpers.Readers
             }
             catch (Exception e)
             {
-                ConsoleHelper.WriteLine($"\tException occured for file:\r\n\t{path}", ConsoleColor.Red);
+                ConsoleHelper.WriteLine($"\tException occurred for file:\r\n\t{path}", ConsoleColor.Red);
                 ConsoleHelper.WriteLine($"\t{e.Message}", ConsoleColor.Red);
                 ConsoleHelper.WriteLine();
 

@@ -120,6 +120,21 @@ namespace PhotoStructor
                 offsets.Add(camera, offset);
             }
 
+            ConsoleHelper.WriteLine();
+
+            var postfixes = new Dictionary<string, string>();
+            foreach (var camera in cameras)
+            {
+                ConsoleHelper.Write("Set postfix for ", ConsoleColor.Gray);
+                ConsoleHelper.Write(camera, ConsoleColor.Cyan);
+                ConsoleHelper.Write(": ", ConsoleColor.Gray);
+
+                var postfix = Console.ReadKey().KeyChar.ToString();
+                ConsoleHelper.WriteLine();
+
+                postfixes.Add(camera, postfix);
+            }
+
             var modifications = new List<RenamingData>();
             foreach (var photo in photos)
             {
@@ -127,6 +142,7 @@ namespace PhotoStructor
 
                 var photoCameraModel = photo.Value.GetImageDevice(photo.Key);
                 var offset = offsets[photoCameraModel];
+                var postfix = postfixes[photoCameraModel];
 
                 var photoName = Path.GetFileNameWithoutExtension(photo.Key);
                 if (Regex.IsMatch(photoName, photoNameRegexPattern) && offset == 0)
@@ -135,7 +151,7 @@ namespace PhotoStructor
                     continue;
                 }
 
-                var creationTime = photo.Value.GetImageData(photo.Key, out var postfix);
+                var creationTime = photo.Value.GetImageData(photo.Key);
                 if (creationTime == default(DateTime))
                 {
                     throw new Exception($"Creation value of file {photo.Key} is {DateTime.MinValue:yyyyMMdd_HHmmss}.");
@@ -145,7 +161,7 @@ namespace PhotoStructor
                 var renamingData = new RenamingData
                 {
                     OriginalFilePath = photo.Key,
-                    CameraModelPostfix = postfix,
+                    UserDefinedPostfix = postfix,
                     ModifiedFileName = $"{photo.Value.Prefix}_{offsetTime:yyyyMMdd_HHmmss}",
                 };
 

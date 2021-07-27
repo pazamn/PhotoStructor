@@ -18,13 +18,13 @@ namespace PhotoStructor.Data
 
         public bool DoRollback { get; set; }
 
-        public string CameraModelPostfix { get; set; }
+        public string UserDefinedPostfix { get; set; }
 
-        public string ModifiedFilePostfix => ModifiedFileConflictNumber > 0  && !string.IsNullOrEmpty(CameraModelPostfix) ? $"_{CameraModelPostfix}{ModifiedFileConflictNumber}"
-                                           : ModifiedFileConflictNumber <= 0 && !string.IsNullOrEmpty(CameraModelPostfix) ? $"_{CameraModelPostfix}"  
-                                           : ModifiedFileConflictNumber > 0  && string.IsNullOrEmpty(CameraModelPostfix)  ? $"{ModifiedFileConflictNumber}"
-                                           : ModifiedFileConflictNumber <= 0 && string.IsNullOrEmpty(CameraModelPostfix)  ? $""
-                                           : $"___";
+        public string ModifiedFilePostfix => ModifiedFileConflictNumber > 0  && !string.IsNullOrEmpty(UserDefinedPostfix) ? $"_{UserDefinedPostfix}{ModifiedFileConflictNumber}"
+                                           : ModifiedFileConflictNumber <= 0 && !string.IsNullOrEmpty(UserDefinedPostfix) ? $"_{UserDefinedPostfix}"  
+                                           : ModifiedFileConflictNumber > 0  && string.IsNullOrEmpty(UserDefinedPostfix)  ? $"{ModifiedFileConflictNumber}"
+                                           : ModifiedFileConflictNumber <= 0 && string.IsNullOrEmpty(UserDefinedPostfix)  ? $""
+                                           : $"_";
 
         public string ModifiedFullFileName => $"{ModifiedFileName.Trim()}{ModifiedFilePostfix.Trim()}{Extension}";
 

@@ -13,7 +13,7 @@ namespace PhotoStructor.Helpers.Readers
     {
         public string Prefix => "IMG";
 
-        public DateTime GetImageData(string path, out string postfix)
+        public DateTime GetImageData(string path)
         {
             try
             {
@@ -24,6 +24,8 @@ namespace PhotoStructor.Helpers.Readers
 
                 var metadata = ImageMetadataReader.ReadMetadata(path);
                 var ifd0Directory = metadata.OfType<ExifIfd0Directory>().FirstOrDefault();
+                var subIfd0Directory = metadata.OfType<ExifSubIfdDirectory>().FirstOrDefault();
+
                 if (ifd0Directory != null && !string.IsNullOrEmpty(ifd0Directory.GetDescription(ExifDirectoryBase.TagDateTime)))
                 {
                     var dateTimeString = ifd0Directory.GetDescription(ExifDirectoryBase.TagDateTime);
@@ -52,8 +54,32 @@ namespace PhotoStructor.Helpers.Readers
                     var time = new TimeSpan(Convert.ToInt32(splitTime[0]), Convert.ToInt32(splitTime[1]), Convert.ToInt32(splitTime[2]));
 
                     var dateTime = new DateTime(date.Year, date.Month, date.Day, time.Hours, time.Minutes, time.Seconds);
+                    return dateTime;
+                }
 
-                    postfix = model.StartsWith("iPhone") || model.StartsWith("iPad") ? "i" : string.Empty;
+                if (subIfd0Directory != null)
+                {
+                    var dateTimeString = subIfd0Directory.GetDescription(36867);
+                    var dateTimeOffsetString = subIfd0Directory.GetDescription(36881);
+
+                    if (string.IsNullOrEmpty(dateTimeString))
+                    {
+                        throw new FileLoadException("Date taken value is not defined in EXIF SUB IFD0 of the file");
+                    }
+
+                    var dateTimeRegexPattern = @"\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}";
+                    if (!Regex.IsMatch(dateTimeString, dateTimeRegexPattern))
+                    {
+                        throw new FileLoadException($"Date taken value is converted in wrong format. Expected: '{dateTimeRegexPattern}', but was: '{dateTimeString}'.");
+                    }
+
+                    var splitDateTimeStr = dateTimeString.Split(' ');
+                    var date = DateTime.ParseExact(splitDateTimeStr[0], "yyyy:MM:dd", CultureInfo.CurrentCulture);
+
+                    var splitTime = splitDateTimeStr[1].Split(':');
+                    var time = new TimeSpan(Convert.ToInt32(splitTime[0]), Convert.ToInt32(splitTime[1]), Convert.ToInt32(splitTime[2]));
+
+                    var dateTime = new DateTime(date.Year, date.Month, date.Day, time.Hours, time.Minutes, time.Seconds);
                     return dateTime;
                 }
                 
@@ -69,18 +95,15 @@ namespace PhotoStructor.Helpers.Readers
                 }
 
                 var fileInfo = new FileInfo(path);
-
-                postfix = "x";
                 return fileInfo.LastWriteTime;
             }
             catch (Exception e)
             {
-                ConsoleHelper.WriteLine($"\tException occured for file:\r\n\t{path}", ConsoleColor.Red);
+                ConsoleHelper.WriteLine($"\tException occurred for file:\r\n\t{path}", ConsoleColor.Red);
                 ConsoleHelper.WriteLine($"\t{e.Message}", ConsoleColor.Red);
                 ConsoleHelper.WriteLine();
 
-                postfix = string.Empty;
-                return default(DateTime);
+                return default;
             }
         }
 
@@ -104,7 +127,7 @@ namespace PhotoStructor.Helpers.Readers
             }
             catch (Exception e)
             {
-                ConsoleHelper.WriteLine($"\tException occured for file:\r\n\t{path}", ConsoleColor.Red);
+                ConsoleHelper.WriteLine($"\tException occurred for file:\r\n\t{path}", ConsoleColor.Red);
                 ConsoleHelper.WriteLine($"\t{e.Message}", ConsoleColor.Red);
                 ConsoleHelper.WriteLine();
 

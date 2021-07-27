@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
-using PhotoStructor.Data;
 using PhotoStructor.Interfaces;
 
 namespace PhotoStructor.Helpers.Readers
@@ -14,7 +13,7 @@ namespace PhotoStructor.Helpers.Readers
     {
         public string Prefix => "IMG";
 
-        public DateTime GetImageData(string path, out string postfix)
+        public DateTime GetImageData(string path)
         {
             try
             {
@@ -53,28 +52,19 @@ namespace PhotoStructor.Helpers.Readers
                     var time = new TimeSpan(Convert.ToInt32(splitTime[0]), Convert.ToInt32(splitTime[1]), Convert.ToInt32(splitTime[2]));
 
                     var dateTime = new DateTime(date.Year, date.Month, date.Day, time.Hours, time.Minutes, time.Seconds);
-
-                    postfix = model.StartsWith("iPhone") || model.StartsWith("iPad") ? "i" : string.Empty;
                     return dateTime;
                 }
 
-                //todo-AD Get actual timestamp of .HEIC, not modification time
-                var directories = ImageMetadataReader.ReadMetadata(path);
-                var gps = directories.OfType<GpsDirectory>().FirstOrDefault();
-                var location = gps?.GetGeoLocation();
-
-                postfix = "x";
                 var fileInfo = new FileInfo(path);
                 return fileInfo.LastWriteTime;
             }
             catch (Exception e)
             {
-                ConsoleHelper.WriteLine($"\tException occured for file:\r\n\t{path}", ConsoleColor.Red);
+                ConsoleHelper.WriteLine($"\tException occurred for file:\r\n\t{path}", ConsoleColor.Red);
                 ConsoleHelper.WriteLine($"\t{e.Message}", ConsoleColor.Red);
                 ConsoleHelper.WriteLine();
-
-                postfix = "i";
-                return default(DateTime);
+                
+                return default;
             }
         }
 
@@ -98,7 +88,7 @@ namespace PhotoStructor.Helpers.Readers
             }
             catch (Exception e)
             {
-                ConsoleHelper.WriteLine($"\tException occured for file:\r\n\t{path}", ConsoleColor.Red);
+                ConsoleHelper.WriteLine($"\tException occurred for file:\r\n\t{path}", ConsoleColor.Red);
                 ConsoleHelper.WriteLine($"\t{e.Message}", ConsoleColor.Red);
                 ConsoleHelper.WriteLine();
 

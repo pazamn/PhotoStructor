@@ -6,7 +6,7 @@ namespace PhotoStructor.Interfaces
     {
         string Prefix { get; }
 
-        DateTime GetImageData(string path, out string postfix);
+        DateTime GetImageData(string path);
         string GetImageDevice(string path);
     }
 }
